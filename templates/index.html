@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human-in-the-Loop Interface | AI Annotation Tool</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4cc9f0;
+            --danger-color: #f72585;
+            --success-color: #4bb543;
+            --warning-color: #ffb703;
+            --light-bg: #f8f9fa;
+            --dark-bg: #212529;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fb;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-brand i {
+            font-size: 1.8rem;
+        }
+
+        .container-fluid {
+            padding: 20px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #eaeaea;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-header i {
+            margin-right: 8px;
+        }
+
+        .frame-metadata {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metadata-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metadata-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .metadata-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        #canvas {
+            max-width: 100%;
+            max-height: 70vh;
+            height: auto;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            display: block;
+            margin: 0 auto;
+            cursor: crosshair;
+            background-color: #f8f9fa;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        #canvas:hover {
+            border-color: var(--accent-color);
+        }
+
+        .btn-group-toggle .btn {
+            border-radius: 8px !important;
+            padding: 8px 16px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-group-toggle .btn-outline-primary.active {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 3px 5px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-group-toggle .btn-outline-info.active {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            box-shadow: 0 3px 5px rgba(76, 201, 240, 0.3);
+        }
+
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .control-panel .btn {
+            border-radius: 8px;
+            padding: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .control-panel .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+            color: #333;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .annotation-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 1px solid #eaeaea;
+        }
+
+        .annotation-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: var(--transition);
+        }
+
+        .annotation-list-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .annotation-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .annotation-color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            display: inline-block;
+        }
+
+        .annotation-human {
+            background-color: var(--danger-color);
+        }
+
+        .annotation-ai {
+            background-color: var(--accent-color);
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+        }
+
+        .input-group-append .btn {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .stats-panel {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .stats-title {
+            font-size: 1rem;
+            color: #6c757d;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .stats-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .hotkey-hint {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .feedback-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .feedback-btn {
+            flex: 1;
+            border-radius: 8px;
+            padding: 10px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .feedback-positive {
+            background-color: rgba(75, 181, 67, 0.1);
+            border: 2px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .feedback-negative {
+            background-color: rgba(247, 37, 133, 0.1);
+            border: 2px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .feedback-neutral {
+            background-color: rgba(255, 183, 3, 0.1);
+            border: 2px solid var(--warning-color);
+            color: #333;
+        }
+
+        .feedback-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .badge-human {
+            background-color: var(--danger-color);
+        }
+
+        .badge-ai {
+            background-color: var(--accent-color);
+        }
+
+        .progress-container {
+            margin-top: 20px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+            background-color: #e9ecef;
+        }
+
+        .progress-bar {
+            background: linear-gradient(to right, var(--accent-color), var(--primary-color));
+            border-radius: 5px;
+        }
+
+        @media (max-width: 992px) {
+            .control-panel {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .frame-metadata {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .frame-metadata {
+                grid-template-columns: 1fr;
+            }
+            
+            .feedback-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <!-- Modern Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand">
+                <i class="fas fa-robot"></i>
+                <span>Human-in-the-Loop</span>
+            </a>
+            <div class="navbar-text ml-auto d-none d-md-block">
+                <span class="badge badge-light mr-2">AI Annotation Tool</span>
+                <span class="badge badge-light">v2.0</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Left Panel - Controls and Information -->
+            <div class="col-lg-4 col-md-5">
+                <!-- Frame Metadata -->
+                <div class="frame-metadata">
+                    <div class="metadata-item">
+                        <span class="metadata-label">
+                            <i class="far fa-image"></i> Current Frame
+                        </span>
+                        <div class="d-flex align-items-center">
+                            <input type="number" class="form-control form-control-sm mr-2" id="frame_id" min="0" value="0" onchange="setFrameId()" style="width: 80px;">
+                            <span id="frame_num" class="metadata-value">/ 0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metadata-item">
+                        <span class="metadata-label">
+                            <i class="fas fa-expand-alt"></i> Resolution
+                        </span>
+                        <span id="frame_shape" class="metadata-value">0 × 0</span>
+                    </div>
+                    
+                    <div class="metadata-item">
+                        <span class="metadata-label">
+                            <i class="fas fa-bolt"></i> Agent Action
+                        </span>
+                        <span id="frame_action" class="metadata-value">0</span>
+                    </div>
+                    
+                    <div class="metadata-item">
+                        <span class="metadata-label">
+                            <i class="fas fa-user-check"></i> Human Feedback
+                        </span>
+                        <span id="human_feedback" class="metadata-value">No feedback</span>
+                    </div>
+                </div>
+
+                <!-- Frame Control Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-sliders-h"></i> Frame Controls
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="frame_time" class="font-weight-bold">Playback Speed (ms)</label>
+                            <input type="range" class="custom-range" id="frame_time" min="100" max="1000" step="100" value="200" onchange="setFrameTime()">
+                            <div class="d-flex justify-content-between">
+                                <small>Fast</small>
+                                <small id="frame_time_display">200 ms</small>
+                                <small>Slow</small>
+                            </div>
+                        </div>
+                        
+                        <div class="feedback-buttons">
+                            <button class="btn feedback-positive feedback-btn" onclick="updateFrameFeedback(1, frameId)">
+                                <i class="fas fa-thumbs-up"></i> Positive
+                                <small class="hotkey-hint d-block">(A)</small>
+                            </button>
+                            <button class="btn feedback-neutral feedback-btn" onclick="updateFrameFeedback(0, frameId)">
+                                <i class="fas fa-minus-circle"></i> Neutral
+                                <small class="hotkey-hint d-block">(D)</small>
+                            </button>
+                            <button class="btn feedback-negative feedback-btn" onclick="updateFrameFeedback(-1, frameId)">
+                                <i class="fas fa-thumbs-down"></i> Negative
+                                <small class="hotkey-hint d-block">(S)</small>
+                            </button>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button class="btn btn-outline-secondary btn-sm btn-block" onclick="updateFrameFeedback(0, frameId, 0)">
+                                <i class="fas fa-eraser"></i> Clear Feedback
+                                <small class="hotkey-hint d-block">(C)</small>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Human Annotations Card -->
+                <div class="card">
+                    <div class="card-header d-flex align-items-center">
+                        <div>
+                            <i class="fas fa-draw-polygon text-danger"></i> Human Annotations
+                            <span class="badge badge-human ml-2" id="human-count">0</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" onclick="clearCanvas()">
+                            <i class="fas fa-trash-alt"></i> Clear
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="bounding-box-list" class="annotation-list">
+                            <div class="annotation-list-item text-muted">
+                                <i class="fas fa-info-circle mr-2"></i> No annotations yet
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Detection Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-magic text-info"></i> AI Object Detection
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="ai_prompt" class="font-weight-bold">Object Prompt</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="ai_prompt" value="person" placeholder="Enter object to detect...">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="button" onclick="runAIDetection()">
+                                        <i class="fas fa-robot"></i> Detect
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Enter the object you want the AI to detect in the image</small>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <label class="font-weight-bold">AI Predictions <span class="badge badge-ai ml-1" id="ai-count">0</span></label>
+                            <div id="ai-box-list" class="annotation-list mt-2">
+                                <div class="annotation-list-item text-muted">
+                                    <i class="fas fa-info-circle mr-2"></i> No AI predictions yet
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Image and Annotation Tools -->
+            <div class="col-lg-8 col-md-7">
+                <!-- Mode Selection and Canvas Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-eye"></i> Annotation Canvas
+                    </div>
+                    <div class="card-body">
+                        <!-- Mode Toggle -->
+                        <div class="btn-group btn-group-toggle mb-4" data-toggle="buttons">
+                            <label class="btn btn-outline-primary active">
+                                <input type="radio" name="modes" id="mode_annotate" checked onclick="setMode('annotate')">
+                                <i class="fas fa-pen"></i> Annotation Mode
+                                <span class="badge badge-human ml-1">Human</span>
+                            </label>
+                            <label class="btn btn-outline-info">
+                                <input type="radio" name="modes" id="mode_review" onclick="setMode('review')">
+                                <i class="fas fa-search"></i> Review Mode
+                                <span class="badge badge-ai ml-1">AI</span>
+                            </label>
+                        </div>
+
+                        <!-- Canvas -->
+                        <div class="text-center mb-4">
+                            <canvas id="canvas"></canvas>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="progress-container">
+                            <div class="progress-label">
+                                <span>Annotation Progress</span>
+                                <span>0%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+
+                        <!-- Control Panel -->
+                        <div class="control-panel mt-4">
+                            <button type="button" class="btn btn-outline-primary" onclick="previousFrame()">
+                                <i class="fas fa-step-backward"></i> Previous
+                                <small class="hotkey-hint d-block">(<)</small>
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" onclick="nextFrame()">
+                                <i class="fas fa-step-forward"></i> Next
+                                <small class="hotkey-hint d-block">(>)</small>
+                            </button>
+                            <button type="button" class="btn btn-success" onclick="autoPlay()">
+                                <i class="fas fa-play"></i> Play
+                                <small class="hotkey-hint d-block">(P)</small>
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="stopAutoPlay()">
+                                <i class="fas fa-pause"></i> Pause
+                                <small class="hotkey-hint d-block">(P)</small>
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="saveAll()">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                            <button type="button" class="btn btn-warning" id="undo_btn" onclick="undo()" disabled>
+                                <i class="fas fa-undo"></i> Undo
+                                <small class="hotkey-hint d-block">(Ctrl+Z)</small>
+                            </button>
+                            <button id="redo_btn" class="btn btn-secondary" onclick="redo()" disabled>
+                                <i class="fas fa-redo"></i> Redo
+                                <small class="hotkey-hint d-block">(Ctrl+Y)</small>
+                            </button>
+                            <button type="button" class="btn btn-info" onclick="runAIDetection()">
+                                <i class="fas fa-bolt"></i> AI Detect
+                            </button>
+                        </div>
+
+                        <!-- Instructions -->
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <h6><i class="fas fa-info-circle mr-2"></i> Quick Instructions</h6>
+                            <ul class="mb-0 small">
+                                <li>Click and drag on the canvas to create a bounding box</li>
+                                <li>Switch modes to edit human annotations or AI predictions</li>
+                                <li>Use keyboard shortcuts for faster workflow</li>
+                                <li>Accept AI suggestions by clicking the <i class="fas fa-check text-success"></i> button</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Panel -->
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="stats-panel text-center">
+                            <div class="stats-title">Human Annotations</div>
+                            <div class="stats-value" id="stats-human">0</div>
+                            <small class="text-muted">Active in this frame</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-panel text-center">
+                            <div class="stats-title">AI Predictions</div>
+                            <div class="stats-value" id="stats-ai">0</div>
+                            <small class="text-muted">Generated by model</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-panel text-center">
+                            <div class="stats-title">Accuracy</div>
+                            <div class="stats-value" id="stats-accuracy">0%</div>
+                            <small class="text-muted">Based on feedback</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-3 bg-light text-center border-top">
+        <div class="container">
+            <small class="text-muted">
+                <i class="fas fa-copyright"></i> 2023 Human-in-the-Loop Annotation Tool | 
+                Project 3: AI Validation & Correction Interface
+            </small>
+        </div>
+    </footer>
+
+    <!-- JavaScript Libraries (unchanged) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+
+    <script>
+        /**
+         * ***********************
+         * ***********************
+         * Webpage Initialization
+         * ***********************
+         * ***********************
+         * **/
+        var currentBoxes = [];
+        var redoStack = [];
+        var aiBoxes = [];
+        async function initPage() {
+            initCanvas();
+            await showFrame(0);
+            
+            // Initialize the frame time display
+            updateFrameTimeDisplay();
+            
+            // Update statistics
+            updateStats();
+        }
+
+        var hiddenHumanIndices = new Set();
+        var hiddenAIIndices = new Set();
+
+        window.addEventListener('load', () => initPage(), false);
+
+        /**
+         * *****************
+         * *****************
+         * Frame Control
+         * *****************
+         * *****************
+         * **/
+        var frameId = 0;
+        var numFrames = 6;
+        var autoPlaying = false;
+        var frameTime = 200;
+
+        // New function to update frame time display
+        function updateFrameTimeDisplay() {
+            document.getElementById("frame_time_display").textContent = frameTime + " ms";
+        }
+
+        // Update setFrameTime to also update the display
+        function setFrameTime() {
+            frameTime = document.getElementById("frame_time").value.valueOf();
+            updateFrameTimeDisplay();
+        }
+
+        async function runAIDetection() {
+            let prompt = document.getElementById("ai_prompt").value;
+
+            // Show a "loading" state
+            document.getElementById("ai-box-list").innerHTML = '<div class="annotation-list-item text-info"><i class="fas fa-spinner fa-spin mr-2"></i>AI is detecting objects...</div>';
+
+            const response = await fetch("http://127.0.0.1:5000/ai/detect", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: frameId, prompt: prompt })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                aiBoxes = result.ai_boxes;
+                redrawCanvas(); // Update the image with new boxes
+                updateInfoPanelWithAI(); // Update the list on the left
+                updateStats(); // Update statistics
+            } else {
+                alert("AI Detection failed: " + result.error);
+            }
+        }
+
+        function updateInfoPanel(frameInfo) {
+            // 1. Update Basic Frame Metadata
+            document.getElementById("frame_id").value = frameId;
+
+            // Display Agent Action
+            document.getElementById("frame_action").innerHTML = frameInfo["action"];
+
+            // Display Human Feedback Status (Positive/Negative/None)
+            if (frameInfo["is_evaluated"].valueOf() === 1) {
+                let feedbackText = frameInfo["human_feedback"];
+                let feedbackClass = "text-muted";
+                let feedbackIcon = "";
+                
+                if (feedbackText === "1") {
+                    feedbackText = "Positive";
+                    feedbackClass = "text-success";
+                    feedbackIcon = '<i class="fas fa-thumbs-up mr-1"></i>';
+                } else if (feedbackText === "-1") {
+                    feedbackText = "Negative";
+                    feedbackClass = "text-danger";
+                    feedbackIcon = '<i class="fas fa-thumbs-down mr-1"></i>';
+                } else if (feedbackText === "0") {
+                    feedbackText = "Neutral";
+                    feedbackClass = "text-warning";
+                    feedbackIcon = '<i class="fas fa-minus-circle mr-1"></i>';
+                }
+                
+                document.getElementById("human_feedback").innerHTML = feedbackIcon + '<span class="' + feedbackClass + '">' + feedbackText + '</span>';
+            } else {
+                document.getElementById("human_feedback").innerHTML = '<span class="text-muted">No feedback</span>';
+            }
+
+            // Display Total Frame Count and Resolution
+            numFrames = frameInfo["num_frames"];
+            document.getElementById("frame_num").innerHTML = "/ " + numFrames;
+            document.getElementById("frame_shape").innerHTML = frameInfo["rgb_obs_width"] + " × " + frameInfo["rgb_obs_height"];
+
+            // 2. Update Human Annotations List (Red Boxes)
+            let boundingBoxes = frameInfo["bounding_boxes"];
+            let boundingBoxList = document.getElementById("bounding-box-list");
+
+            // Clear the current list to redraw
+            removeAllChildNodes(boundingBoxList);
+
+            if (boundingBoxes.length === 0) {
+                // State for when no boxes exist
+                let noDataItem = document.createElement("div");
+                noDataItem.className = "annotation-list-item text-muted";
+                noDataItem.innerHTML = '<i class="fas fa-info-circle mr-2"></i> No annotations yet';
+                boundingBoxList.appendChild(noDataItem);
+            } else {
+                // Inside updateInfoPanel (Human Annotations)
+                boundingBoxes.forEach((box, index) => {
+                    let listItem = document.createElement("div");
+                    listItem.className = "annotation-list-item d-flex justify-content-between align-items-center";
+                    
+                    let leftContent = document.createElement("div");
+                    leftContent.className = "d-flex align-items-center";
+                    
+                    let toggleBtn = document.createElement("button");
+                    toggleBtn.className = "btn btn-sm btn-outline-secondary mr-2";
+                    toggleBtn.style.padding = "2px 6px";
+                    toggleBtn.innerHTML = hiddenHumanIndices.has(index) ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+
+                    toggleBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        if (hiddenHumanIndices.has(index)) {
+                            hiddenHumanIndices.delete(index);
+                        } else {
+                            hiddenHumanIndices.add(index);
+                        }
+                        redrawCanvas();
+                        updateInfoPanel(frameInfo); // Refresh list
+                    };
+
+                    const r = box.map(coord => Math.round(coord));
+                    let coordsText = `[${r[2]}, ${r[3]}, ${r[0]}, ${r[1]}]`;
+                    
+                    let span = document.createElement("span");
+                    span.className = "small";
+                    span.innerHTML = '<span class="annotation-color-indicator annotation-human mr-2"></span>' + coordsText;
+                    
+                    leftContent.appendChild(toggleBtn);
+                    leftContent.appendChild(span);
+                    
+                    let delBtn = document.createElement("button");
+                    delBtn.className = "btn btn-sm btn-outline-danger";
+                    delBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    delBtn.onclick = async () => {
+                        saveState();
+                        currentBoxes.splice(index, 1);
+                        hiddenHumanIndices.clear(); // Clear hidden state on delete to avoid index mismatch
+                        await updateBoundingBoxes(currentBoxes, frameId, false);
+                        showFrame(frameId);
+                        updateStats();
+                    };
+
+                    listItem.appendChild(leftContent);
+                    listItem.appendChild(delBtn);
+                    boundingBoxList.appendChild(listItem);
+                });
+            }
+            
+            // Update human count
+            document.getElementById("human-count").textContent = boundingBoxes.length;
+            document.getElementById("stats-human").textContent = boundingBoxes.length;
+            
+            // Update progress bar
+            updateProgressBar();
+        }
+
+        // Function to update progress bar
+        function updateProgressBar() {
+            let progress = frameId / (numFrames - 1) * 100;
+            if (numFrames <= 1) progress = 100;
+            
+            document.querySelector(".progress-bar").style.width = progress + "%";
+            document.querySelector(".progress-bar").setAttribute("aria-valuenow", progress);
+            document.querySelector(".progress-label span:last-child").textContent = Math.round(progress) + "%";
+        }
+
+        // Function to update statistics
+        function updateStats() {
+            document.getElementById("stats-human").textContent = currentBoxes.length;
+            document.getElementById("stats-ai").textContent = aiBoxes.length;
+            
+            // Calculate a simple accuracy metric (for demo purposes)
+            let totalBoxes = currentBoxes.length + aiBoxes.length;
+            let accuracy = totalBoxes > 0 ? Math.min(95, Math.round((currentBoxes.length / totalBoxes) * 100)) : 0;
+            document.getElementById("stats-accuracy").textContent = accuracy + "%";
+        }
+
+        // Safe async setInterval function
+        function setIntervalAsync(func, interval) {
+            let startTime = Date.now();
+            func().then(() => {
+                if (autoPlaying) {
+                    let endTime = Date.now();
+                    // guarantee a fixed delay of interval
+                    let waitTime = Math.max(0, interval - (endTime - startTime));
+                    setTimeout(() => setIntervalAsync(func, interval), waitTime);
+                }
+            });
+        }
+
+        async function showFrame(id) {
+            // 1. Only clear history if we are actually changing frames
+            if (window.frameId !== id) {
+                historyStack = [];
+                // Reset visibility ONLY when moving to a brand new image
+                hiddenHumanIndices.clear();
+                hiddenAIIndices.clear();
+            }
+
+            window.frameId = id; // Ensure global frameId is updated
+
+            const response = await fetch("http://127.0.0.1:5000/frame/info?id=" + id);
+            const frameInfo = await response.json();
+            let imgSrc = "http://127.0.0.1:5000/frame?id=" + id;
+
+            updateInfoPanel(frameInfo);
+            updateCanvas(imgSrc, frameInfo);
+            updateStats();
+            updateProgressBar();
+
+            return 0;
+        }
+
+        function removeAllChildNodes(parent) {
+            while (parent.firstChild) {
+                parent.removeChild(parent.firstChild);
+            }
+        }
+
+        function updateInfoPanelWithAI() {
+            let aiBoxList = document.getElementById("ai-box-list");
+            removeAllChildNodes(aiBoxList);
+
+            if (aiBoxes.length === 0) {
+                let noDataItem = document.createElement("div");
+                noDataItem.className = "annotation-list-item text-muted";
+                noDataItem.innerHTML = '<i class="fas fa-info-circle mr-2"></i> No AI predictions yet';
+                aiBoxList.appendChild(noDataItem);
+            } else {
+                aiBoxes.forEach((box, index) => {
+                    let listItem = document.createElement("div");
+                    listItem.className = "annotation-list-item d-flex justify-content-between align-items-center";
+                    
+                    let leftContent = document.createElement("div");
+                    leftContent.className = "d-flex align-items-center";
+                    
+                    let toggleBtn = document.createElement("button");
+                    toggleBtn.className = "btn btn-sm btn-outline-secondary mr-2";
+                    toggleBtn.style.padding = "2px 6px";
+                    toggleBtn.innerHTML = hiddenAIIndices.has(index) ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+                    toggleBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        hiddenAIIndices.has(index) ? hiddenAIIndices.delete(index) : hiddenAIIndices.add(index);
+                        redrawCanvas();
+                        updateInfoPanelWithAI();
+                    };
+
+                    const roundedBox = box.map(coord => Math.round(coord));
+                    let coordsText = `[${roundedBox.join(', ')}]`;
+                    
+                    let span = document.createElement("span");
+                    span.className = "small";
+                    span.innerHTML = '<span class="annotation-color-indicator annotation-ai mr-2"></span>' + coordsText;
+                    
+                    leftContent.appendChild(toggleBtn);
+                    leftContent.appendChild(span);
+                    
+                    let acceptBtn = document.createElement("button");
+                    acceptBtn.className = "btn btn-sm btn-success";
+                    acceptBtn.innerHTML = '<i class="fas fa-check"></i>';
+                    acceptBtn.onclick = () => acceptAIBox(index);
+
+                    listItem.appendChild(leftContent);
+                    listItem.appendChild(acceptBtn);
+                    aiBoxList.appendChild(listItem);
+                });
+            }
+            
+            // Update AI count
+            document.getElementById("ai-count").textContent = aiBoxes.length;
+            document.getElementById("stats-ai").textContent = aiBoxes.length;
+        }
+
+        // Logic to convert AI suggestion to Human annotation
+        function acceptAIBox(index) {
+            saveState();
+            const box = aiBoxes[index];
+            currentBoxes.push([...box]);
+            aiBoxes.splice(index, 1);
+
+            // Clear visibility sets because indices have shifted
+            hiddenAIIndices.clear();
+            hiddenHumanIndices.clear();
+
+            updateBoundingBoxes(currentBoxes, frameId, true);
+            updateStats();
+        }
+
+        async function nextFrame() {
+            frameId = (frameId + 1) % numFrames;
+            await showFrame(frameId);
+            return 0;
+        }
+
+        async function previousFrame() {
+            frameId = Math.max(0, frameId - 1);
+            await showFrame(frameId);
+            return 0;
+        }
+
+        function autoPlay() {
+            autoPlaying = true;
+            setIntervalAsync(nextFrame, frameTime);
+            
+            // Update button states
+            document.querySelector('button[onclick="autoPlay()"]').innerHTML = '<i class="fas fa-play"></i> Playing';
+            document.querySelector('button[onclick="autoPlay()"]').classList.remove('btn-success');
+            document.querySelector('button[onclick="autoPlay()"]').classList.add('btn-warning');
+        }
+
+        function stopAutoPlay() {
+            autoPlaying = false;
+            
+            // Update button states
+            document.querySelector('button[onclick="autoPlay()"]').innerHTML = '<i class="fas fa-play"></i> Play';
+            document.querySelector('button[onclick="autoPlay()"]').classList.remove('btn-warning');
+            document.querySelector('button[onclick="autoPlay()"]').classList.add('btn-success');
+        }
+
+        function setFrameId() {
+            console.log("setFrameId");
+            frameId = document.getElementById("frame_id").value.valueOf();
+            showFrame(frameId);
+        }
+
+        /**
+         * *****************
+         * *****************
+         * Canvas Control
+         * *****************
+         * *****************
+         * **/
+        var canvas;
+        var ctx;
+        var canvasSnapshot;
+        var canvasImg;
+        var drawingBox = [0, 0, 0, 0];    // the bounding box that the user is creating by moving mouse
+        var isDraggingBox = false; // true if the user is moving the mouse to locate a bounding box
+
+        function initCanvas() {
+            canvas = document.getElementById("canvas");
+            ctx = canvas.getContext("2d");
+
+            canvasImg = new Image();
+            canvasImg.onload = redrawCanvas;
+
+            // Point to the NEW unified handlers
+            canvas.addEventListener("mousedown", handleMouseDown, false);
+            canvas.addEventListener("mousemove", handleMouseMove, false);
+            canvas.addEventListener("mouseup", handleMouseUp, false);
+            
+            // Add touch events for mobile support
+            canvas.addEventListener("touchstart", handleTouchStart, false);
+            canvas.addEventListener("touchmove", handleTouchMove, false);
+            canvas.addEventListener("touchend", handleTouchEnd, false);
+        }
+
+        // Touch event handlers
+        function handleTouchStart(event) {
+            event.preventDefault();
+            if (event.touches.length === 1) {
+                const touch = event.touches[0];
+                const mouseEvent = new MouseEvent("mousedown", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            }
+        }
+
+        function handleTouchMove(event) {
+            event.preventDefault();
+            if (event.touches.length === 1) {
+                const touch = event.touches[0];
+                const mouseEvent = new MouseEvent("mousemove", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            }
+        }
+
+        function handleTouchEnd(event) {
+            event.preventDefault();
+            const mouseEvent = new MouseEvent("mouseup", {});
+            canvas.dispatchEvent(mouseEvent);
+        }
+
+        function getCanvasCoordinates(event) {
+            const rect = canvas.getBoundingClientRect();
+
+            // 1. Get mouse position relative to the visual element
+            let viewX = event.clientX - rect.left;
+            let viewY = event.clientY - rect.top;
+
+            // 2. Scale coordinates to the internal canvas resolution
+            // Internal / Visual ratio
+            let x = viewX * (canvas.width / rect.width);
+            let y = viewY * (canvas.height / rect.height);
+
+            return { x: x, y: y };
+        }
+
+        function takeSnapshot() {
+            canvasSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        }
+
+        function restoreSnapshot() {
+            ctx.putImageData(canvasSnapshot, 0, 0);
+        }
+
+        function drawBoundingBox(xMin, xMax, yMin, yMax, color = "red") {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = color === "blue" ? "2" : "3";
+            ctx.rect(xMin, yMin, xMax - xMin, yMax - yMin);
+            ctx.stroke();
+        }
+
+        function startBoundingBoxPos(event) {
+            isDraggingBox = true;
+            let pos = getCanvasCoordinates(event);
+            drawingBox = [Math.round(pos.x), 0, Math.round(pos.y), 0];
+            takeSnapshot();
+        }
+
+        function dragBoundingBoxPos(event) {
+            if (isDraggingBox) {
+                restoreSnapshot();
+                let pos = getCanvasCoordinates(event);
+                drawingBox[1] = Math.round(pos.x);
+                drawingBox[3] = Math.round(pos.y);
+                drawBoundingBox(drawingBox[0], drawingBox[1], drawingBox[2], drawingBox[3]);
+            }
+        }
+
+        function endBoundingBoxPos(event) {
+            isDraggingBox = false;
+            // save the new box
+            let pos = getCanvasCoordinates(event);
+            drawingBox[1] = Math.round(pos.x);
+            drawingBox[3] = Math.round(pos.y);
+            // save the new box in numpy image coordinate system
+            currentBoxes.push([drawingBox[2], drawingBox[3], drawingBox[0], drawingBox[1]]);
+            // upload to server
+            updateBoundingBoxes(currentBoxes, frameId, true);
+            updateStats();
+        }
+
+        function redrawCanvas() {
+            ctx.canvas.width = canvasImg.width;
+            ctx.canvas.height = canvasImg.height;
+            ctx.drawImage(canvasImg, 0, 0);
+
+            // Only draw if NOT in the hidden set
+            aiBoxes.forEach((box, index) => {
+                if (!hiddenAIIndices.has(index)) drawBoxWithHandles(box, "blue");
+            });
+
+            currentBoxes.forEach((box, index) => {
+                if (!hiddenHumanIndices.has(index)) drawBoxWithHandles(box, "red");
+            });
+
+            // --- FIXED LOGIC HERE ---
+            if (isDrawingNew) {
+                // drawingBox is [startX, startY, currentX, currentY]
+                // We must ensure we pass (xMin, xMax, yMin, yMax)
+                let xMin = Math.min(drawingBox[0], drawingBox[2]);
+                let xMax = Math.max(drawingBox[0], drawingBox[2]);
+                let yMin = Math.min(drawingBox[1], drawingBox[3]);
+                let yMax = Math.max(drawingBox[1], drawingBox[3]);
+
+                drawBoundingBox(xMin, xMax, yMin, yMax, "red");
+            }
+        }
+
+        var historyStack = [];
+        const MAX_HISTORY = 50; // Limit memory usage
+
+        // Save a snapshot of both Human and AI boxes
+        function saveState() {
+            const state = {
+                human: JSON.parse(JSON.stringify(currentBoxes)),
+                ai: JSON.parse(JSON.stringify(aiBoxes)),
+                sourceMode: mode // Track if this was an 'annotate' or 'review' action
+            };
+
+            historyStack.push(state);
+            if (historyStack.length > MAX_HISTORY) historyStack.shift();
+
+            redoStack = []; // Reset redo on new action
+
+            document.getElementById("undo_btn").disabled = false;
+            if (document.getElementById("redo_btn")) document.getElementById("redo_btn").disabled = true;
+        }
+
+        function undo() {
+            if (historyStack.length === 0) return;
+
+            // Peek at the last saved state
+            const lastState = historyStack[historyStack.length - 1];
+
+            // GUARD: Only allow undo if the mode matches the action type
+            if (lastState.sourceMode !== mode) {
+                console.warn(`Cannot undo ${lastState.sourceMode} action while in ${mode} mode.`);
+                return;
+            }
+
+            // Save current into redo before popping
+            redoStack.push({
+                human: JSON.parse(JSON.stringify(currentBoxes)),
+                ai: JSON.parse(JSON.stringify(aiBoxes)),
+                sourceMode: mode
+            });
+
+            const stateToRestore = historyStack.pop();
+            applyState(stateToRestore);
+            updateStats();
+        }
+
+        function redo() {
+            if (redoStack.length === 0) return;
+
+            // Peek at the next state in redo stack
+            const nextState = redoStack[redoStack.length - 1];
+
+            // GUARD: Only allow redo if the mode matches
+            if (nextState.sourceMode !== mode) {
+                console.warn(`Cannot redo ${nextState.sourceMode} action while in ${mode} mode.`);
+                return;
+            }
+
+            historyStack.push({
+                human: JSON.parse(JSON.stringify(currentBoxes)),
+                ai: JSON.parse(JSON.stringify(aiBoxes)),
+                sourceMode: mode
+            });
+
+            const stateToRestore = redoStack.pop();
+            applyState(stateToRestore);
+            updateStats();
+        }
+
+        // Helper to keep code DRY (Don't Repeat Yourself)
+        function applyState(state) {
+            currentBoxes = state.human;
+            aiBoxes = state.ai;
+
+            // Update the Canvas
+            redrawCanvas();
+
+            // Update the Blue List (AI)
+            updateInfoPanelWithAI();
+
+            // Update the Red List (Human)
+            updateInfoPanel({
+                "bounding_boxes": currentBoxes,
+                "action": document.getElementById("frame_action").innerText || "None",
+                "is_evaluated": 0,
+                "num_frames": numFrames,
+                "rgb_obs_height": canvas.height,
+                "rgb_obs_width": canvas.width
+            });
+
+            // Update the Server
+            updateBoundingBoxes(currentBoxes, frameId, false);
+
+            // Toggle Button States
+            document.getElementById("undo_btn").disabled = (historyStack.length === 0);
+            if (document.getElementById("redo_btn")) {
+                document.getElementById("redo_btn").disabled = (redoStack.length === 0);
+            }
+        }
+
+        function drawBoxWithHandles(box, color) {
+            // box: [yMin, yMax, xMin, xMax]
+            drawBoundingBox(box[2], box[3], box[0], box[1], color);
+
+            // Only draw handles for the active mode's boxes
+            let isActiveMode = (color === "blue" && mode === "review") || (color === "red" && mode === "annotate");
+
+            if (isActiveMode) {
+                ctx.fillStyle = "white";
+                ctx.strokeStyle = color;
+                const s = 6; // handle size
+                
+                // Draw handles with borders
+                ctx.lineWidth = 1;
+                ctx.fillRect(box[2] - s / 2, box[0] - s / 2, s, s);
+                ctx.strokeRect(box[2] - s / 2, box[0] - s / 2, s, s);
+                
+                ctx.fillRect(box[3] - s / 2, box[0] - s / 2, s, s);
+                ctx.strokeRect(box[3] - s / 2, box[0] - s / 2, s, s);
+                
+                ctx.fillRect(box[2] - s / 2, box[1] - s / 2, s, s);
+                ctx.strokeRect(box[2] - s / 2, box[1] - s / 2, s, s);
+                
+                ctx.fillRect(box[3] - s / 2, box[1] - s / 2, s, s);
+                ctx.strokeRect(box[3] - s / 2, box[1] - s / 2, s, s);
+            }
+        }
+
+        function updateCanvas(imgSrc, frameInfo) {
+            currentBoxes = frameInfo["bounding_boxes"] || [];
+            aiBoxes = frameInfo["ai_predictions"] || []; // Load existing AI predictions if they exist
+
+            canvasImg.src = imgSrc;
+            updateInfoPanelWithAI();
+            updateStats();
+        }
+
+        function clearCanvas() {
+            saveState(); // Save before clearing
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            currentBoxes = [];
+            updateBoundingBoxes(currentBoxes, frameId, true);
+            updateStats();
+        }
+
+        /**
+         * ******************
+         * ******************
+         * Server Connection
+         * ******************
+         * ******************
+         * **/
+        async function updateBoundingBoxes(boundingBoxes, id, updateWebpage = false) {
+            const rawResponse = await fetch("http://127.0.0.1:5000/frame/info?id=" + id, {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ "bounding_boxes": boundingBoxes })
+            });
+            const response = await rawResponse.json();
+            // notify the user if upload fails
+            if (!response.success) {
+                alert("Fail to upload bounding boxes to server.");
+            }
+
+            // update webpage if required
+            if (updateWebpage) {
+                await showFrame(frameId);
+            }
+        }
+
+        async function updateFrameFeedback(feedback, id, is_evaluated = 1) {
+            const rawResponse = await fetch("http://127.0.0.1:5000/frame/info?id=" + id, {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ "human_feedback": feedback, "is_evaluated": is_evaluated })
+            });
+            const response = await rawResponse.json();
+            // notify the user if upload fails
+            if (!response.success) {
+                alert("Fail to upload bounding boxes to server.");
+            } else {
+                if (is_evaluated === 1) {
+                    let feedbackText, feedbackClass, feedbackIcon;
+                    
+                    if (feedback === 1) {
+                        feedbackText = "Positive";
+                        feedbackClass = "text-success";
+                        feedbackIcon = '<i class="fas fa-thumbs-up mr-1"></i>';
+                    } else if (feedback === -1) {
+                        feedbackText = "Negative";
+                        feedbackClass = "text-danger";
+                        feedbackIcon = '<i class="fas fa-thumbs-down mr-1"></i>';
+                    } else if (feedback === 0) {
+                        feedbackText = "Neutral";
+                        feedbackClass = "text-warning";
+                        feedbackIcon = '<i class="fas fa-minus-circle mr-1"></i>';
+                    }
+                    
+                    document.getElementById("human_feedback").innerHTML = feedbackIcon + '<span class="' + feedbackClass + '">' + feedbackText + '</span>';
+                } else {
+                    document.getElementById("human_feedback").innerHTML = '<span class="text-muted">No feedback</span>';
+                }
+            }
+        }
+
+        async function saveAll() {
+            const rawResponse = await fetch("http://127.0.0.1:5000/save", { method: "POST" });
+            const response = await rawResponse.json();
+            // notify the user if upload fails
+            if (!response.success) {
+                alert("Fail to save data on server.");
+            } else {
+                // Show success feedback
+                const saveBtn = document.querySelector('button[onclick="saveAll()"]');
+                const originalHtml = saveBtn.innerHTML;
+                saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                saveBtn.classList.remove('btn-secondary');
+                saveBtn.classList.add('btn-success');
+                
+                setTimeout(() => {
+                    saveBtn.innerHTML = originalHtml;
+                    saveBtn.classList.remove('btn-success');
+                    saveBtn.classList.add('btn-secondary');
+                }, 2000);
+            }
+        }
+
+        /**
+         * ******************
+         * ******************
+         * Keyboard Input
+         * ******************
+         * ******************
+         * **/
+        async function keyboardInputHandler(event) {
+            const key = event.key.toLowerCase();
+
+            // UNDO: Ctrl + Z
+            if (event.ctrlKey && key === 'z' && !event.shiftKey) {
+                event.preventDefault();
+                undo();
+                return;
+            }
+
+            // REDO: Ctrl + Y or Ctrl + Shift + Z
+            if (event.ctrlKey && (key === 'y' || (key === 'z' && event.shiftKey))) {
+                event.preventDefault();
+                redo();
+                return;
+            }
+
+            // Feedback logic (A, S, D, C)
+            if (key === "a") await updateFrameFeedback(1, frameId);
+            else if (key === "s") await updateFrameFeedback(-1, frameId);
+            else if (key === "d") await updateFrameFeedback(0, frameId);
+            else if (key === "c") await updateFrameFeedback(0, frameId, 0);
+
+            // Navigation logic ( < and > )
+            else if (key === "." || key === ">") await nextFrame(); // key for '>'
+            else if (key === "," || key === "<") await previousFrame(); // key for '<'
+
+            // Play/Pause (P)
+            else if (key === "p") {
+                autoPlaying ? stopAutoPlay() : autoPlay();
+            }
+            
+            // Space bar toggles play/pause
+            else if (key === " ") {
+                event.preventDefault();
+                autoPlaying ? stopAutoPlay() : autoPlay();
+            }
+        }
+
+        var mode = 'annotate'; // 'annotate' or 'review'
+        var dragInfo = { boxIndex: -1, startX: 0, startY: 0, initialBox: [] };
+        var resizeInfo = { boxIndex: -1, corner: null };
+        var isDrawingNew = false;
+
+        function setMode(newMode) {
+            mode = newMode;
+            console.log("Switched to:", mode);
+            redrawCanvas();
+            
+            // Update UI to reflect active mode
+            if (mode === 'annotate') {
+                document.querySelector('.btn-group-toggle .btn-outline-primary').classList.add('active');
+                document.querySelector('.btn-group-toggle .btn-outline-info').classList.remove('active');
+            } else {
+                document.querySelector('.btn-group-toggle .btn-outline-primary').classList.remove('active');
+                document.querySelector('.btn-group-toggle .btn-outline-info').classList.add('active');
+            }
+        }
+
+        // Helper: Check if mouse is inside a box
+        function getBoxAt(pos) {
+            let isReview = (mode === 'review');
+            let targetArray = isReview ? aiBoxes : currentBoxes;
+            let hiddenSet = isReview ? hiddenAIIndices : hiddenHumanIndices; // Use correct set
+
+            for (let i = 0; i < targetArray.length; i++) {
+                if (hiddenSet.has(i)) continue; // SKIP HIDDEN BOXES
+
+                let b = targetArray[i];
+                if (pos.x >= b[2] && pos.x <= b[3] && pos.y >= b[0] && pos.y <= b[1]) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        function getHandleAt(pos) {
+            let isReview = (mode === 'review');
+            let targetArray = isReview ? aiBoxes : currentBoxes;
+            let hiddenSet = isReview ? hiddenAIIndices : hiddenHumanIndices; // Use correct set
+            const offset = 10;
+
+            for (let i = 0; i < targetArray.length; i++) {
+                if (hiddenSet.has(i)) continue;
+
+                let b = targetArray[i]; // [yMin, yMax, xMin, xMax]
+                // Corners: nw[2,0], ne[3,0], sw[2,1], se[3,1]
+                if (Math.abs(pos.x - b[2]) < offset && Math.abs(pos.y - b[0]) < offset) return { index: i, corner: "nw" };
+                if (Math.abs(pos.x - b[3]) < offset && Math.abs(pos.y - b[0]) < offset) return { index: i, corner: "ne" };
+                if (Math.abs(pos.x - b[2]) < offset && Math.abs(pos.y - b[1]) < offset) return { index: i, corner: "sw" };
+                if (Math.abs(pos.x - b[3]) < offset && Math.abs(pos.y - b[1]) < offset) return { index: i, corner: "se" };
+            }
+            return null;
+        }
+
+        // 1. UPDATED MOUSE DOWN (The Mode Guard)
+        function handleMouseDown(event) {
+            let pos = getCanvasCoordinates(event);
+            let targetArray = (mode === 'review') ? aiBoxes : currentBoxes;
+
+            // A. Check for Resize Corner (Only in the target array for current mode)
+            let handle = getHandleAt(pos);
+            if (handle) {
+                saveState(); // Capture state BEFORE change
+                resizeInfo = { boxIndex: handle.index, corner: handle.corner };
+                return;
+            }
+
+            // B. Check for Move (Only in the target array for current mode)
+            let boxIdx = getBoxAt(pos);
+            if (boxIdx !== -1) {
+                saveState(); // Capture state BEFORE change
+                dragInfo = {
+                    boxIndex: boxIdx,
+                    startX: pos.x,
+                    startY: pos.y,
+                    initialBox: [...targetArray[boxIdx]]
+                };
+                return;
+            }
+
+            // C. Draw New (ONLY allowed in Annotate mode)
+            if (mode === 'annotate') {
+                saveState();
+                isDrawingNew = true;
+                drawingBox = [pos.x, pos.y, pos.x, pos.y];
+            }
+        }
+
+        function handleMouseMove(event) {
+            let pos = getCanvasCoordinates(event);
+            let targetArray = (mode === 'review') ? aiBoxes : currentBoxes;
+
+            // Update cursor based on position
+            updateCursor(pos);
+
+            if (resizeInfo.boxIndex !== -1) {
+                // Resizing Logic
+                let b = targetArray[resizeInfo.boxIndex];
+                if (resizeInfo.corner === "nw") { b[2] = pos.x; b[0] = pos.y; }
+                if (resizeInfo.corner === "ne") { b[3] = pos.x; b[0] = pos.y; }
+                if (resizeInfo.corner === "sw") { b[2] = pos.x; b[1] = pos.y; }
+                if (resizeInfo.corner === "se") { b[3] = pos.x; b[1] = pos.y; }
+                redrawCanvas();
+            }
+            else if (dragInfo.boxIndex !== -1) {
+                // Moving Logic
+                let dx = pos.x - dragInfo.startX;
+                let dy = pos.y - dragInfo.startY;
+                let b = dragInfo.initialBox;
+
+                // Update current box position: [yMin, yMax, xMin, xMax]
+                targetArray[dragInfo.boxIndex] = [
+                    b[0] + dy, b[1] + dy,
+                    b[2] + dx, b[3] + dx
+                ];
+                redrawCanvas();
+            }
+            else if (isDrawingNew) {
+                drawingBox[2] = pos.x;
+                drawingBox[3] = pos.y;
+                redrawCanvas();
+            }
+        }
+
+        function handleMouseUp() {
+            let changed = false;
+
+            if (resizeInfo.boxIndex !== -1 || dragInfo.boxIndex !== -1) {
+                changed = true;
+                // In applyState, we already handle server updates and panel refreshes
+                applyState({ human: currentBoxes, ai: aiBoxes });
+            } else if (isDrawingNew) {
+                const width = Math.abs(drawingBox[0] - drawingBox[2]);
+                const height = Math.abs(drawingBox[1] - drawingBox[3]);
+
+                if (width > 5 && height > 5) {
+                    currentBoxes.push([
+                        Math.min(drawingBox[1], drawingBox[3]), Math.max(drawingBox[1], drawingBox[3]),
+                        Math.min(drawingBox[0], drawingBox[2]), Math.max(drawingBox[0], drawingBox[2])
+                    ]);
+                    changed = true;
+                    applyState({ human: currentBoxes, ai: aiBoxes });
+                }
+            }
+
+            // If mouse was clicked but nothing moved/drew, remove the "empty" history state
+            if (!changed && historyStack.length > 0) {
+                const last = historyStack[historyStack.length - 1];
+                // Only pop if it was just created in this mouse cycle
+                historyStack.pop();
+            }
+
+            resizeInfo.boxIndex = -1;
+            dragInfo.boxIndex = -1;
+            isDrawingNew = false;
+        }
+
+        function updateCursor(pos) {
+            if (getHandleAt(pos)) canvas.style.cursor = "nwse-resize";
+            else if (getBoxAt(pos) !== -1) canvas.style.cursor = "move";
+            else if (mode === 'annotate') canvas.style.cursor = "crosshair";
+            else canvas.style.cursor = "default";
+        }
+
+        document.addEventListener('keydown', (event) => keyboardInputHandler(event));
+        
+        // Initialize the slider display
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('frame_time').addEventListener('input', function() {
+                document.getElementById('frame_time_display').textContent = this.value + ' ms';
+            });
+        });
+    </script>
+</body>
+
+</html>
