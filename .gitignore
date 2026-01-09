@@ -1,13 +1,9 @@
 venv/
-ENV/
 env/
 __pycache__/
-*.py[cod]
-*$py.class
 .env
 .flaskenv
 *.pkl
-images.pkl
 
 
 person.jpg
@@ -18,13 +14,10 @@ person.jpg
 
 # Ignore les dossiers de données d'images
 examples/
-Simple-Human-Loop/img/
-Simple-Human-Loop/human_study_data/
 static/asterix/
 
 
 tmp/
-Simple-Human-Loop/tmp/
 
 .ipynb_checkpoints
 .vscode/
