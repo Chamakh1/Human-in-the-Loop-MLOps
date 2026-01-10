@@ -12,9 +12,10 @@ import supervision as sv
 import cv2
 import gym
 from flask import Flask, render_template, jsonify, request, send_from_directory
+from flask_cors import CORS
 
 app = Flask(__name__)
-
+CORS(app)
 # --- CONFIGURATION ---
 # 1. Set your NEW API key here (or better, in your OS environment variables)
 # os.environ["MOONDREAM_API_KEY"] = "paste_your_new_key_here"
@@ -43,13 +44,16 @@ def index():
 @app.route('/frame')
 def get_frame():
     """Get single frame"""
-    frame_id = request.args.get('id')
-    if frame_id is None:
-        frame_id = 0
-    frame_id = int(frame_id)
-
+    frame_id = request.args.get('id', default=0, type=int)
+    
+    # On force le nom du fichier
     fname = str(frame_id) + '.jpg'
-    return send_from_directory(server_data['img_dir'], fname)
+    
+    # On définit le chemin absolu vers le dossier tmp de Flask
+    # app.static_folder pointe vers le dossier 'static' du projet
+    target_dir = os.path.join(app.static_folder, "tmp")
+    
+    return send_from_directory(target_dir, fname)
 
 
 @app.route('/frame/info', methods=['GET'])
@@ -172,14 +176,15 @@ def read_data():
     """Load data on server"""
     print('[INFO] Loading server resources ...')
     
-    # [Added for safety] If pickle doesn't exist, create dummy structure to avoid crash
     if not os.path.exists(data_file):
         print("[WARNING] Data file not found. Creating dummy data.")
+        # Utilisation de os.path.join pour la compatibilité Linux/Windows
+        img_dir = os.path.join(app.static_folder, "tmp")
         return {
             'rgb_frames': [np.zeros((210, 160, 3), dtype=np.uint8)],
             'actions': [0],
             'frame_info': [{'bounding_boxes': [], 'ai_predictions': [], 'human_feedback': 0, 'is_evaluated': 0}],
-            'img_dir': os.path.join(app.static_folder, "tmp")
+            'img_dir': img_dir
         }
 
     with open(data_file, 'rb') as file:
@@ -188,30 +193,31 @@ def read_data():
     data['rgb_obs_shape'] = data['rgb_frames'][0].shape
     data['num_frames'] = len(data['rgb_frames'])
     
-    # Initialize frame_info if missing
     if 'frame_info' not in data:
-        data['frame_info'] = [{'bounding_boxes': [], 'human_feedback': 0, 'is_evaluated': 0} for _ in
-                              range(data['num_frames'])]
+        data['frame_info'] = [{'bounding_boxes': [], 'human_feedback': 0, 'is_evaluated': 0} for _ in range(data['num_frames'])]
     
-    # Ensure every frame info has an 'ai_predictions' list
     for info in data['frame_info']:
         if 'ai_predictions' not in info:
             info['ai_predictions'] = []
 
-    # convert rgb array to png files
+    # --- SECTION CRITIQUE : GÉNÉRATION DES IMAGES ---
     img_dir = os.path.join(app.static_folder, "tmp")
     data['img_dir'] = img_dir
-    if not os.path.exists(img_dir):
-        os.mkdir(img_dir)
-    else:
-        shutil.rmtree(img_dir)
-        os.mkdir(img_dir)
+
+    # Création propre du dossier
+    if os.path.exists(img_dir):
+        shutil.rmtree(img_dir, ignore_errors=True)
+    
+    # exist_ok=True évite les erreurs si le dossier est créé entre-temps
+    os.makedirs(img_dir, exist_ok=True)
+
+    print(f'[INFO] Exporting {data["num_frames"]} images to {img_dir}...')
+    
     for idx in range(data['num_frames']):
         img = Image.fromarray(data['rgb_frames'][idx])
-        img.save(os.path.join(img_dir, str(idx) + '.jpg'))
+        img.save(os.path.join(img_dir, f"{idx}.jpg"), "JPEG")
 
     return data
-
 
 def main():
     global server_data
@@ -221,6 +227,14 @@ def main():
     server_data = read_data()
     app.run(debug=True)
 
-
 if __name__ == '__main__':
-    main()
+    # 1. Charger les données et générer les images AVANT de lancer le serveur
+    print("[DOCKER] Initialisation des données...")
+    server_data = read_data()
+    
+    # 2. Vérification rapide
+    if server_data:
+        print(f"[DOCKER] Succès : {server_data['num_frames']} images générées dans {server_data['img_dir']}")
+    
+    # 3. Lancer Flask sur 0.0.0.0 pour Docker
+    app.run(host='0.0.0.0', port=5000, debug=True)

@@ -9,7 +9,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
         integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-    
+
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -357,7 +357,7 @@
             .control-panel {
                 grid-template-columns: repeat(2, 1fr);
             }
-            
+
             .frame-metadata {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -367,14 +367,32 @@
             .control-panel {
                 grid-template-columns: 1fr;
             }
-            
+
             .frame-metadata {
                 grid-template-columns: 1fr;
             }
-            
+
             .feedback-buttons {
                 flex-direction: column;
             }
+        }
+
+        .control-panel {
+            gap: 10px;
+            /* Espace entre les boutons */
+        }
+
+        .control-panel .btn {
+            min-width: 100px;
+            /* Largeur minimale uniforme */
+            display: inline-block;
+            /* Évite le comportement vertical */
+            vertical-align: top;
+        }
+
+        .hotkey-hint {
+            font-size: 0.7rem;
+            opacity: 0.8;
         }
     </style>
 
@@ -407,25 +425,26 @@
                             <i class="far fa-image"></i> Current Frame
                         </span>
                         <div class="d-flex align-items-center">
-                            <input type="number" class="form-control form-control-sm mr-2" id="frame_id" min="0" value="0" onchange="setFrameId()" style="width: 80px;">
+                            <input type="number" class="form-control form-control-sm mr-2" id="frame_id" min="0"
+                                value="0" onchange="setFrameId()" style="width: 80px;">
                             <span id="frame_num" class="metadata-value">/ 0</span>
                         </div>
                     </div>
-                    
+
                     <div class="metadata-item">
                         <span class="metadata-label">
                             <i class="fas fa-expand-alt"></i> Resolution
                         </span>
                         <span id="frame_shape" class="metadata-value">0 × 0</span>
                     </div>
-                    
+
                     <div class="metadata-item">
                         <span class="metadata-label">
                             <i class="fas fa-bolt"></i> Agent Action
                         </span>
                         <span id="frame_action" class="metadata-value">0</span>
                     </div>
-                    
+
                     <div class="metadata-item">
                         <span class="metadata-label">
                             <i class="fas fa-user-check"></i> Human Feedback
@@ -442,16 +461,18 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label for="frame_time" class="font-weight-bold">Playback Speed (ms)</label>
-                            <input type="range" class="custom-range" id="frame_time" min="100" max="1000" step="100" value="200" onchange="setFrameTime()">
+                            <input type="range" class="custom-range" id="frame_time" min="100" max="1000" step="100"
+                                value="200" onchange="setFrameTime()">
                             <div class="d-flex justify-content-between">
                                 <small>Fast</small>
                                 <small id="frame_time_display">200 ms</small>
                                 <small>Slow</small>
                             </div>
                         </div>
-                        
+
                         <div class="feedback-buttons">
-                            <button class="btn feedback-positive feedback-btn" onclick="updateFrameFeedback(1, frameId)">
+                            <button class="btn feedback-positive feedback-btn"
+                                onclick="updateFrameFeedback(1, frameId)">
                                 <i class="fas fa-thumbs-up"></i> Positive
                                 <small class="hotkey-hint d-block">(A)</small>
                             </button>
@@ -459,14 +480,16 @@
                                 <i class="fas fa-minus-circle"></i> Neutral
                                 <small class="hotkey-hint d-block">(D)</small>
                             </button>
-                            <button class="btn feedback-negative feedback-btn" onclick="updateFrameFeedback(-1, frameId)">
+                            <button class="btn feedback-negative feedback-btn"
+                                onclick="updateFrameFeedback(-1, frameId)">
                                 <i class="fas fa-thumbs-down"></i> Negative
                                 <small class="hotkey-hint d-block">(S)</small>
                             </button>
                         </div>
-                        
+
                         <div class="mt-3">
-                            <button class="btn btn-outline-secondary btn-sm btn-block" onclick="updateFrameFeedback(0, frameId, 0)">
+                            <button class="btn btn-outline-secondary btn-sm btn-block"
+                                onclick="updateFrameFeedback(0, frameId, 0)">
                                 <i class="fas fa-eraser"></i> Clear Feedback
                                 <small class="hotkey-hint d-block">(C)</small>
                             </button>
@@ -503,18 +526,21 @@
                         <div class="form-group">
                             <label for="ai_prompt" class="font-weight-bold">Object Prompt</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" id="ai_prompt" value="person" placeholder="Enter object to detect...">
+                                <input type="text" class="form-control" id="ai_prompt" value="person"
+                                    placeholder="Enter object to detect...">
                                 <div class="input-group-append">
                                     <button class="btn btn-primary" type="button" onclick="runAIDetection()">
                                         <i class="fas fa-robot"></i> Detect
                                     </button>
                                 </div>
                             </div>
-                            <small class="form-text text-muted">Enter the object you want the AI to detect in the image</small>
+                            <small class="form-text text-muted">Enter the object you want the AI to detect in the
+                                image</small>
                         </div>
-                        
+
                         <div class="mt-3">
-                            <label class="font-weight-bold">AI Predictions <span class="badge badge-ai ml-1" id="ai-count">0</span></label>
+                            <label class="font-weight-bold">AI Predictions <span class="badge badge-ai ml-1"
+                                    id="ai-count">0</span></label>
                             <div id="ai-box-list" class="annotation-list mt-2">
                                 <div class="annotation-list-item text-muted">
                                     <i class="fas fa-info-circle mr-2"></i> No AI predictions yet
@@ -536,7 +562,8 @@
                         <!-- Mode Toggle -->
                         <div class="btn-group btn-group-toggle mb-4" data-toggle="buttons">
                             <label class="btn btn-outline-primary active">
-                                <input type="radio" name="modes" id="mode_annotate" checked onclick="setMode('annotate')">
+                                <input type="radio" name="modes" id="mode_annotate" checked
+                                    onclick="setMode('annotate')">
                                 <i class="fas fa-pen"></i> Annotation Mode
                                 <span class="badge badge-human ml-1">Human</span>
                             </label>
@@ -559,40 +586,48 @@
                                 <span>0%</span>
                             </div>
                             <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0"
+                                    aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                         </div>
 
                         <!-- Control Panel -->
-                        <div class="control-panel mt-4">
-                            <button type="button" class="btn btn-outline-primary" onclick="previousFrame()">
+                        <div class="control-panel mt-4 d-flex flex-wrap justify-content-center">
+                            <button type="button" class="btn btn-outline-primary m-1" onclick="previousFrame()">
                                 <i class="fas fa-step-backward"></i> Previous
-                                <small class="hotkey-hint d-block">(<)</small>
+                                <small class="hotkey-hint d-block">&lt;</small>
                             </button>
-                            <button type="button" class="btn btn-outline-primary" onclick="nextFrame()">
+
+                            <button type="button" class="btn btn-outline-primary m-1" onclick="nextFrame()">
                                 <i class="fas fa-step-forward"></i> Next
-                                <small class="hotkey-hint d-block">(>)</small>
+                                <small class="hotkey-hint d-block">&gt;</small>
                             </button>
-                            <button type="button" class="btn btn-success" onclick="autoPlay()">
+
+                            <button type="button" class="btn btn-success m-1" onclick="autoPlay()">
                                 <i class="fas fa-play"></i> Play
                                 <small class="hotkey-hint d-block">(P)</small>
                             </button>
-                            <button type="button" class="btn btn-warning" onclick="stopAutoPlay()">
+
+                            <button type="button" class="btn btn-warning m-1" onclick="stopAutoPlay()">
                                 <i class="fas fa-pause"></i> Pause
                                 <small class="hotkey-hint d-block">(P)</small>
                             </button>
-                            <button type="button" class="btn btn-secondary" onclick="saveAll()">
+
+                            <button type="button" class="btn btn-secondary m-1" onclick="saveAll()">
                                 <i class="fas fa-save"></i> Save
                             </button>
-                            <button type="button" class="btn btn-warning" id="undo_btn" onclick="undo()" disabled>
+
+                            <button type="button" class="btn btn-warning m-1" id="undo_btn" onclick="undo()" disabled>
                                 <i class="fas fa-undo"></i> Undo
                                 <small class="hotkey-hint d-block">(Ctrl+Z)</small>
                             </button>
-                            <button id="redo_btn" class="btn btn-secondary" onclick="redo()" disabled>
+
+                            <button id="redo_btn" class="btn btn-secondary m-1" onclick="redo()" disabled>
                                 <i class="fas fa-redo"></i> Redo
                                 <small class="hotkey-hint d-block">(Ctrl+Y)</small>
                             </button>
-                            <button type="button" class="btn btn-info" onclick="runAIDetection()">
+
+                            <button type="button" class="btn btn-info m-1" onclick="runAIDetection()">
                                 <i class="fas fa-bolt"></i> AI Detect
                             </button>
                         </div>
@@ -604,7 +639,8 @@
                                 <li>Click and drag on the canvas to create a bounding box</li>
                                 <li>Switch modes to edit human annotations or AI predictions</li>
                                 <li>Use keyboard shortcuts for faster workflow</li>
-                                <li>Accept AI suggestions by clicking the <i class="fas fa-check text-success"></i> button</li>
+                                <li>Accept AI suggestions by clicking the <i class="fas fa-check text-success"></i>
+                                    button</li>
                             </ul>
                         </div>
                     </div>
@@ -642,7 +678,7 @@
     <footer class="mt-5 py-3 bg-light text-center border-top">
         <div class="container">
             <small class="text-muted">
-                <i class="fas fa-copyright"></i> 2023 Human-in-the-Loop Annotation Tool | 
+                <i class="fas fa-copyright"></i> 2026 Human-in-the-Loop Annotation Tool |
                 Project 3: AI Validation & Correction Interface
             </small>
         </div>
@@ -673,10 +709,10 @@
         async function initPage() {
             initCanvas();
             await showFrame(0);
-            
+
             // Initialize the frame time display
             updateFrameTimeDisplay();
-            
+
             // Update statistics
             updateStats();
         }
@@ -711,27 +747,30 @@
 
         async function runAIDetection() {
             let prompt = document.getElementById("ai_prompt").value;
+            document.getElementById("ai-box-list").innerHTML = '<div class="annotation-list-item text-info"><i class="fas fa-spinner fa-spin mr-2"></i>AI is detecting...</div>';
 
-            // Show a "loading" state
-            document.getElementById("ai-box-list").innerHTML = '<div class="annotation-list-item text-info"><i class="fas fa-spinner fa-spin mr-2"></i>AI is detecting objects...</div>';
+            try {
+                // UTILISER UN CHEMIN RELATIF ICI
+                const response = await fetch("/ai/detect", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id: frameId, prompt: prompt })
+                });
 
-            const response = await fetch("http://127.0.0.1:5000/ai/detect", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id: frameId, prompt: prompt })
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                aiBoxes = result.ai_boxes;
-                redrawCanvas(); // Update the image with new boxes
-                updateInfoPanelWithAI(); // Update the list on the left
-                updateStats(); // Update statistics
-            } else {
-                alert("AI Detection failed: " + result.error);
+                const result = await response.json();
+                if (result.success) {
+                    aiBoxes = result.ai_boxes;
+                    redrawCanvas();
+                    updateInfoPanelWithAI();
+                    updateStats();
+                } else {
+                    alert("AI Detection failed: " + result.error);
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+                alert("Connection error to backend");
             }
         }
-
         function updateInfoPanel(frameInfo) {
             // 1. Update Basic Frame Metadata
             document.getElementById("frame_id").value = frameId;
@@ -744,7 +783,7 @@
                 let feedbackText = frameInfo["human_feedback"];
                 let feedbackClass = "text-muted";
                 let feedbackIcon = "";
-                
+
                 if (feedbackText === "1") {
                     feedbackText = "Positive";
                     feedbackClass = "text-success";
@@ -758,7 +797,7 @@
                     feedbackClass = "text-warning";
                     feedbackIcon = '<i class="fas fa-minus-circle mr-1"></i>';
                 }
-                
+
                 document.getElementById("human_feedback").innerHTML = feedbackIcon + '<span class="' + feedbackClass + '">' + feedbackText + '</span>';
             } else {
                 document.getElementById("human_feedback").innerHTML = '<span class="text-muted">No feedback</span>';
@@ -787,10 +826,10 @@
                 boundingBoxes.forEach((box, index) => {
                     let listItem = document.createElement("div");
                     listItem.className = "annotation-list-item d-flex justify-content-between align-items-center";
-                    
+
                     let leftContent = document.createElement("div");
                     leftContent.className = "d-flex align-items-center";
-                    
+
                     let toggleBtn = document.createElement("button");
                     toggleBtn.className = "btn btn-sm btn-outline-secondary mr-2";
                     toggleBtn.style.padding = "2px 6px";
@@ -809,14 +848,14 @@
 
                     const r = box.map(coord => Math.round(coord));
                     let coordsText = `[${r[2]}, ${r[3]}, ${r[0]}, ${r[1]}]`;
-                    
+
                     let span = document.createElement("span");
                     span.className = "small";
                     span.innerHTML = '<span class="annotation-color-indicator annotation-human mr-2"></span>' + coordsText;
-                    
+
                     leftContent.appendChild(toggleBtn);
                     leftContent.appendChild(span);
-                    
+
                     let delBtn = document.createElement("button");
                     delBtn.className = "btn btn-sm btn-outline-danger";
                     delBtn.innerHTML = '<i class="fas fa-times"></i>';
@@ -834,11 +873,11 @@
                     boundingBoxList.appendChild(listItem);
                 });
             }
-            
+
             // Update human count
             document.getElementById("human-count").textContent = boundingBoxes.length;
             document.getElementById("stats-human").textContent = boundingBoxes.length;
-            
+
             // Update progress bar
             updateProgressBar();
         }
@@ -847,7 +886,7 @@
         function updateProgressBar() {
             let progress = frameId / (numFrames - 1) * 100;
             if (numFrames <= 1) progress = 100;
-            
+
             document.querySelector(".progress-bar").style.width = progress + "%";
             document.querySelector(".progress-bar").setAttribute("aria-valuenow", progress);
             document.querySelector(".progress-label span:last-child").textContent = Math.round(progress) + "%";
@@ -857,7 +896,7 @@
         function updateStats() {
             document.getElementById("stats-human").textContent = currentBoxes.length;
             document.getElementById("stats-ai").textContent = aiBoxes.length;
-            
+
             // Calculate a simple accuracy metric (for demo purposes)
             let totalBoxes = currentBoxes.length + aiBoxes.length;
             let accuracy = totalBoxes > 0 ? Math.min(95, Math.round((currentBoxes.length / totalBoxes) * 100)) : 0;
@@ -878,28 +917,23 @@
         }
 
         async function showFrame(id) {
-            // 1. Only clear history if we are actually changing frames
             if (window.frameId !== id) {
                 historyStack = [];
-                // Reset visibility ONLY when moving to a brand new image
                 hiddenHumanIndices.clear();
                 hiddenAIIndices.clear();
             }
+            window.frameId = id;
 
-            window.frameId = id; // Ensure global frameId is updated
-
-            const response = await fetch("http://127.0.0.1:5000/frame/info?id=" + id);
+            // CHEMINS RELATIFS ICI AUSSI
+            const response = await fetch("/frame/info?id=" + id);
             const frameInfo = await response.json();
-            let imgSrc = "http://127.0.0.1:5000/frame?id=" + id;
+            let imgSrc = "/frame?id=" + id;
 
             updateInfoPanel(frameInfo);
             updateCanvas(imgSrc, frameInfo);
             updateStats();
             updateProgressBar();
-
-            return 0;
         }
-
         function removeAllChildNodes(parent) {
             while (parent.firstChild) {
                 parent.removeChild(parent.firstChild);
@@ -919,10 +953,10 @@
                 aiBoxes.forEach((box, index) => {
                     let listItem = document.createElement("div");
                     listItem.className = "annotation-list-item d-flex justify-content-between align-items-center";
-                    
+
                     let leftContent = document.createElement("div");
                     leftContent.className = "d-flex align-items-center";
-                    
+
                     let toggleBtn = document.createElement("button");
                     toggleBtn.className = "btn btn-sm btn-outline-secondary mr-2";
                     toggleBtn.style.padding = "2px 6px";
@@ -936,14 +970,14 @@
 
                     const roundedBox = box.map(coord => Math.round(coord));
                     let coordsText = `[${roundedBox.join(', ')}]`;
-                    
+
                     let span = document.createElement("span");
                     span.className = "small";
                     span.innerHTML = '<span class="annotation-color-indicator annotation-ai mr-2"></span>' + coordsText;
-                    
+
                     leftContent.appendChild(toggleBtn);
                     leftContent.appendChild(span);
-                    
+
                     let acceptBtn = document.createElement("button");
                     acceptBtn.className = "btn btn-sm btn-success";
                     acceptBtn.innerHTML = '<i class="fas fa-check"></i>';
@@ -954,7 +988,7 @@
                     aiBoxList.appendChild(listItem);
                 });
             }
-            
+
             // Update AI count
             document.getElementById("ai-count").textContent = aiBoxes.length;
             document.getElementById("stats-ai").textContent = aiBoxes.length;
@@ -990,7 +1024,7 @@
         function autoPlay() {
             autoPlaying = true;
             setIntervalAsync(nextFrame, frameTime);
-            
+
             // Update button states
             document.querySelector('button[onclick="autoPlay()"]').innerHTML = '<i class="fas fa-play"></i> Playing';
             document.querySelector('button[onclick="autoPlay()"]').classList.remove('btn-success');
@@ -999,7 +1033,7 @@
 
         function stopAutoPlay() {
             autoPlaying = false;
-            
+
             // Update button states
             document.querySelector('button[onclick="autoPlay()"]').innerHTML = '<i class="fas fa-play"></i> Play';
             document.querySelector('button[onclick="autoPlay()"]').classList.remove('btn-warning');
@@ -1037,7 +1071,7 @@
             canvas.addEventListener("mousedown", handleMouseDown, false);
             canvas.addEventListener("mousemove", handleMouseMove, false);
             canvas.addEventListener("mouseup", handleMouseUp, false);
-            
+
             // Add touch events for mobile support
             canvas.addEventListener("touchstart", handleTouchStart, false);
             canvas.addEventListener("touchmove", handleTouchMove, false);
@@ -1272,18 +1306,18 @@
                 ctx.fillStyle = "white";
                 ctx.strokeStyle = color;
                 const s = 6; // handle size
-                
+
                 // Draw handles with borders
                 ctx.lineWidth = 1;
                 ctx.fillRect(box[2] - s / 2, box[0] - s / 2, s, s);
                 ctx.strokeRect(box[2] - s / 2, box[0] - s / 2, s, s);
-                
+
                 ctx.fillRect(box[3] - s / 2, box[0] - s / 2, s, s);
                 ctx.strokeRect(box[3] - s / 2, box[0] - s / 2, s, s);
-                
+
                 ctx.fillRect(box[2] - s / 2, box[1] - s / 2, s, s);
                 ctx.strokeRect(box[2] - s / 2, box[1] - s / 2, s, s);
-                
+
                 ctx.fillRect(box[3] - s / 2, box[1] - s / 2, s, s);
                 ctx.strokeRect(box[3] - s / 2, box[1] - s / 2, s, s);
             }
@@ -1350,7 +1384,7 @@
             } else {
                 if (is_evaluated === 1) {
                     let feedbackText, feedbackClass, feedbackIcon;
-                    
+
                     if (feedback === 1) {
                         feedbackText = "Positive";
                         feedbackClass = "text-success";
@@ -1364,7 +1398,7 @@
                         feedbackClass = "text-warning";
                         feedbackIcon = '<i class="fas fa-minus-circle mr-1"></i>';
                     }
-                    
+
                     document.getElementById("human_feedback").innerHTML = feedbackIcon + '<span class="' + feedbackClass + '">' + feedbackText + '</span>';
                 } else {
                     document.getElementById("human_feedback").innerHTML = '<span class="text-muted">No feedback</span>';
@@ -1385,7 +1419,7 @@
                 saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
                 saveBtn.classList.remove('btn-secondary');
                 saveBtn.classList.add('btn-success');
-                
+
                 setTimeout(() => {
                     saveBtn.innerHTML = originalHtml;
                     saveBtn.classList.remove('btn-success');
@@ -1432,7 +1466,7 @@
             else if (key === "p") {
                 autoPlaying ? stopAutoPlay() : autoPlay();
             }
-            
+
             // Space bar toggles play/pause
             else if (key === " ") {
                 event.preventDefault();
@@ -1449,7 +1483,7 @@
             mode = newMode;
             console.log("Switched to:", mode);
             redrawCanvas();
-            
+
             // Update UI to reflect active mode
             if (mode === 'annotate') {
                 document.querySelector('.btn-group-toggle .btn-outline-primary').classList.add('active');
@@ -1607,10 +1641,10 @@
         }
 
         document.addEventListener('keydown', (event) => keyboardInputHandler(event));
-        
+
         // Initialize the slider display
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('frame_time').addEventListener('input', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('frame_time').addEventListener('input', function () {
                 document.getElementById('frame_time_display').textContent = this.value + ' ms';
             });
         });

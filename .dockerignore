@@ -1,0 +1,8 @@
+# Garder uniquement l'essentiel à ignorer
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+.git/
+.vscode/
