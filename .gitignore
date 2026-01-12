@@ -1,27 +1,36 @@
+# Python & Environnement
 venv/
 env/
 __pycache__/
 .env
 .flaskenv
+*.pyc
+
+# Fichiers Binaires et Bibliothèques (Tes fichiers lourds)
+*.pyd
+*.dll
+*.so
+*.exe
+
+# Fichiers de données (À gérer avec DVC)
 *.pkl
+*.pickle
+images.pkl
+data.pickle
 
-
-person.jpg
+# Images
 *.jpg
 *.png
 *.jpeg
 *.gif
 
-# Ignore les dossiers de données d'images
+# Dossiers spécifiques
 examples/
 static/asterix/
-
-
 tmp/
-
-.ipynb_checkpoints
 .vscode/
 .idea/
-
-.DS_Store
-Thumbs.db
+human_study_data/
+data/
+/data
+temporal-ring-478309-g7-e65a0025d09a.json
