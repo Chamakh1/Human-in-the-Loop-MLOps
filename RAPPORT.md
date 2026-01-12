@@ -64,7 +64,7 @@ Le backend agit comme un point central garantissant la cohérence des données e
 |---------------------------|-------------|
 | Annotation dynamique      | Dessin manuel de bounding boxes avec déplacement et redimensionnement. |
 | Audit IA                  | Interface pour analyser, accepter ou rejeter les prédictions du modèle IA. |
-| Feedback humain            | Système de notation qualitative (Positive / Négative / Neutre) via raccourcis clavier (A, S, D). |
+| Feedback humain           | Système de notation qualitative (Positive / Négative / Neutre) via raccourcis clavier (A, S, D). |
 | Gestion d’état             | Historique des actions permettant l’annulation et la correction rapide des erreurs. |
 | Filtrage visuel            | Masquage ou affichage sélectif des annotations pour améliorer la lisibilité. |
 
@@ -83,43 +83,54 @@ Le feedback humain constitue une donnée stratégique permettant de transformer 
 
 ---
 
-## 5. Roadmap & Intégrations Futures
+## 5. Fusion Docker + MLflow + Backend
 
-L’évolution du projet vise à renforcer sa robustesse, sa traçabilité et son passage à l’échelle via des pratiques MLOps.
+### 5.1 Conteneurisation Docker
 
-### 5.1 Docker – Conteneurisation
+La plateforme est entièrement **conteneurisée via Docker**, garantissant portabilité et reproductibilité. Chaque composant (Backend Flask, Base de données, éventuellement moteur IA) fonctionne dans son conteneur isolé.  
+Le lancement se fait via `docker-compose`, qui orchestre tous les services.
 
-**Objectif :** garantir la portabilité et la reproductibilité de l’application.
+### 5.2 Suivi des expériences avec MLflow
 
-**Implémentation prévue :**
-- Création d’un `Dockerfile` pour le backend Flask.
-- Utilisation de `docker-compose.yml` pour orchestrer les services (API, base de données, moteur d’inférence IA).
+**MLflow** est intégré pour assurer la **traçabilité des expériences IA et du feedback humain** :
 
----
+- Chaque prédiction IA et chaque annotation humaine est enregistrée dans MLflow sous forme d’expérience.
+- Les métriques suivantes sont suivies :
+  - Taux d’acceptation des prédictions IA,
+  - Taux de correction des boîtes englobantes,
+  - Temps moyen d’annotation par image.
+- Les résultats des expériences (annotations, scores, métadonnées) sont stockés dans le **MLflow Tracking Server**, permettant de revenir sur chaque session et de visualiser l’évolution de la performance IA.
 
-### 5.2 MLflow – Suivi et Gestion des Modèles
+### 5.3 Interaction avec le Backend
 
-**Objectif :** assurer un suivi précis des expériences et des performances des modèles IA.
+Le **Backend Flask** agit comme intermédiaire entre les conteneurs Docker et MLflow :
 
-**Implémentation prévue :**
-- Enregistrement des paramètres des modèles et des prompts.
-- Suivi des métriques issues du feedback humain (taux d’acceptation, taux de correction).
-- Versionnement et gestion des modèles via un **Model Registry**.
+1. L’utilisateur interagit via le frontend.
+2. Le backend reçoit les annotations ou déclenche le modèle IA.
+3. Les résultats (annotations, prédictions, métriques) sont **automatiquement envoyés à MLflow** pour suivi.
+4. Les images et fichiers temporaires restent dans les volumes Docker, garantissant cohérence et isolation.
 
----
-
-### 5.3 DVC – Gestion et Versionnement des Données
-
-**Objectif :** structurer et versionner les jeux de données et annotations.
-
-**Implémentation prévue :**
-- Gestion des images sources sans surcharge du dépôt Git.
-- Versionnement des fichiers JSON d’annotations.
-- Traçabilité complète des données (*data lineage*) pour le ré-entraînement futur des modèles.
+Cette architecture garantit une **boucle complète Human-in-the-Loop avec traçabilité MLOps**, tout en restant portable et scalable.
 
 ---
 
-## 6. Conclusion
+## 6. Roadmap & Intégrations Futures
 
-Ce projet constitue une base solide pour une plateforme **Human-in-the-Loop moderne**, combinant interaction humaine, intelligence artificielle et bonnes pratiques MLOps.  
-Il ouvre la voie à un système évolutif, fiable et orienté vers l’amélioration continue des performances des agents IA.
+### 6.1 Docker – Conteneurisation
+- Conteneurisation complète du backend, base de données et moteur IA.
+- Lancement via `docker-compose` pour simplifier la mise en place et l’intégration continue.
+
+### 6.2 MLflow – Suivi et Gestion des Modèles
+- Suivi des paramètres et métriques pour chaque modèle et annotation.
+- Versionnement des modèles via **Model Registry**.
+
+### 6.3 DVC – Gestion et Versionnement des Données
+- Versionnement des images et annotations sans surcharger le dépôt Git.
+- Historique complet des modifications pour permettre un ré-entraînement futur.
+
+---
+
+## 7. Conclusion
+
+Ce projet constitue une base solide pour une plateforme **Human-in-the-Loop moderne**, combinant interaction humaine, intelligence artificielle, conteneurisation Docker et bonnes pratiques MLOps via MLflow et DVC.  
+Il permet la traçabilité complète des annotations, la supervision des modèles IA et l’amélioration continue de la performance des agents.

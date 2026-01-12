@@ -1,3 +1,4 @@
+
 services:
   backend:
     build: .
@@ -5,13 +6,15 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./Simple-Human-Loop/img:/app/Simple-Human-Loop/img
-      - ./static/asterix:/app/static/asterix
+      - ./data/static:/app/data/static
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://user:password@db:5432/annotation_db
+      # IMPORTANT : On utilise le nom du service "mlflow" et le port interne 5000
+      - MLFLOW_TRACKING_URI=http://mlflow:5000 
     depends_on:
       - db
+      - mlflow
     restart: always
 
   db:
@@ -23,6 +26,22 @@ services:
       POSTGRES_DB: annotation_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.10.0
+    container_name: mlflow
+    ports:
+      - "5001:5000"
+    volumes:
+      - mlflow_data:/mlflow
+    # La commande est bien indentée sous le service mlflow
+    command: >
+      mlflow server
+      --backend-store-uri sqlite:///mlflow/mlflow.db
+      --default-artifact-root /mlflow/artifacts
+      --host 0.0.0.0
+    restart: always
+
 volumes:
   postgres_data:
+  mlflow_data:

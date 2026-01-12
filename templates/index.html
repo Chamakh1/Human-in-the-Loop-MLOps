@@ -751,7 +751,7 @@
 
             try {
                 // UTILISER UN CHEMIN RELATIF ICI
-                const response = await fetch("/ai/detect", {
+                const response = await fetch("http://127.0.0.1:5000/ai/detect", { 
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ id: frameId, prompt: prompt })
@@ -771,6 +771,8 @@
                 alert("Connection error to backend");
             }
         }
+        
+        
         function updateInfoPanel(frameInfo) {
             // 1. Update Basic Frame Metadata
             document.getElementById("frame_id").value = frameId;
@@ -927,7 +929,8 @@
             // CHEMINS RELATIFS ICI AUSSI
             const response = await fetch("/frame/info?id=" + id);
             const frameInfo = await response.json();
-            let imgSrc = "/frame?id=" + id;
+            const BACKEND_URL = "http://localhost:5000";
+            let imgSrc = `${BACKEND_URL}/static/tmp/${id}.jpg`;
 
             updateInfoPanel(frameInfo);
             updateCanvas(imgSrc, frameInfo);
