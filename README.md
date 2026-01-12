@@ -140,6 +140,16 @@ Human feedback is **strategic data** that transforms a simple annotation applica
 
 ---
 
+### **Important Note on Moondream VLM**
+
+* This system is optimized for **moondream_v2**, which requires atomic prompting for accurate localization.
+
+   * **One-Word Prompts:** Use single nouns only (e.g., person, tree, bicycle).
+
+   * **Single Object Limit:** The model cannot detect multiple distinct objects simultaneously. For complex scenes, the system performs sequential inference passes per object class.
+
+---
+
 ## Conclusion
 
 This platform constitutes a **solid foundation for a modern Human-in-the-Loop system**, combining human interaction, artificial intelligence, and MLOps best practices.
