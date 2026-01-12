@@ -130,12 +130,12 @@ Human feedback is **strategic data** that transforms a simple annotation applica
 ### MLflow – Experiment Tracking
 
 * Tracking of model parameters, performance metrics, and human feedback.
-* Versioning of artifacts (annotated images, JSON files).
+* Versioning of artifacts (annotated images).
 
 ### DVC – Data Management
 
 * Structure and version annotated datasets.
-* Management of source images and JSON annotations without overloading Git.
+* Management of source images and .pickle annotations without overloading Git.
 * Complete traceability for future model retraining.
 
 ---
