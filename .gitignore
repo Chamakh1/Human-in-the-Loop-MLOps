@@ -1,4 +1,3 @@
-# Python & Environnement
 venv/
 env/
 __pycache__/
@@ -6,26 +5,22 @@ __pycache__/
 .flaskenv
 *.pyc
 
-# Fichiers Binaires et Bibliothèques (Tes fichiers lourds)
 *.pyd
 *.dll
 *.so
 *.exe
 
-# Fichiers de données (À gérer avec DVC)
 *.pkl
 *.pickle
 images.pkl
 data.pickle
 
-# Fichiers de données (À gérer avec DVC)
 *.pkl
 *.pickle
 images.pkl
 data.pickle
 
 
-# Dossiers spécifiques
 examples/
 static/asterix/
 tmp/
