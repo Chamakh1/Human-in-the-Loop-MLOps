@@ -25,7 +25,6 @@ This platform is an interactive image annotation tool enabling a human feedback 
 | **Frontend** | JS / HTML5 Canvas | Annotation and review interface                                 |
 | **Backend API** | Flask (Python)    | Data management, business logic, AI interaction                 |
 | **MLflow** | MLflow Server     | Tracking metrics, parameters, and AI experiment artifacts       |
-| **Database** | PostgreSQL        | Storage of annotation metadata                                  |
 | **Containerization** | Docker / Compose  | Orchestration and service portability                           |
 
 ---
