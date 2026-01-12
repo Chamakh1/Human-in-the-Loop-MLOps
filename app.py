@@ -193,18 +193,44 @@ def save_human_data():
         print("[INFO] Sauvegarde sur disque réussie.")
 
         # 2. ENVOI AUTOMATIQUE VERS MLFLOW
-        # On calcule les statistiques
+        # --- CALCUL DES NOUVELLES METRIQUES ---
         frame_info = server_data.get("frame_info", [])
         total_frames = len(frame_info)
+        
+        # Compte les images terminées
         evaluated = sum(1 for f in frame_info if f.get("is_evaluated", 0) == 1)
+        
+        # Compte le nombre total de boîtes dessinées par l'humain
+       
+        total_human_boxes = 0
+        for f in frame_info:
+            # On regarde la clé standard 'bounding_boxes' où sont stockées les validations
+            if 'bounding_boxes' in f and isinstance(f['bounding_boxes'], list):
+                total_human_boxes += len(f['bounding_boxes'])
 
-        # On lance le run MLflow (dans un try/except pour ne pas bloquer si MLflow est éteint)
+        # Compte le nombre total de boîtes trouvées par l'IA (Moondream)
+        total_ai_boxes = 0
+        for f in frame_info:
+            if 'ai_predictions' in f:
+                total_ai_boxes += len(f['ai_predictions'])
+
+        # Calcul du pourcentage de progression (0 à 100)
+        progress_percentage = (evaluated / total_frames * 100) if total_frames > 0 else 0
+
+        # --- ENVOI A MLFLOW ---
         try:
             with mlflow.start_run(run_name="auto_save_from_backend"):
+                # Métriques existantes
                 mlflow.log_metric("total_frames", total_frames)
                 mlflow.log_metric("evaluated_frames", evaluated)
+                
+                # NOUVELLES Métriques
+                mlflow.log_metric("human_boxes_count", total_human_boxes)
+                mlflow.log_metric("ai_boxes_count", total_ai_boxes)
+                mlflow.log_metric("progress_percentage", progress_percentage)
+                
                 mlflow.log_artifact(save_file)
-                print("***************[MLFLOW] Données et fichier envoyés avec succès !")
+                print("***************[MLFLOW] Données complètes envoyées avec succès !")
         except Exception as e_mlflow:
             print(f"[WARNING] Sauvegardé sur disque, mais échec MLflow : {e_mlflow}")
 
@@ -213,7 +239,6 @@ def save_human_data():
         return jsonify({'success': False}), 400, {'ContentType': 'application/json'}
     
     return jsonify({'success': True}), 200, {'ContentType': 'application/json'}
-
 def read_data():
     """Load data on server"""
     print('[INFO] Loading server resources ...')
