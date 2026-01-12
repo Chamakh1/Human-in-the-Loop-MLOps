@@ -6,146 +6,151 @@
 
 ---
 
-## Présentation du Projet
+## Project Overview
 
-Cette plateforme est un outil d'annotation d'images interactif permettant une boucle de rétroaction humaine (**Human-in-the-Loop**). Elle permet de valider les prédictions d'IA, de corriger des boîtes englobantes et de générer des jeux de données de haute qualité pour le ré-entraînement de modèles.
+This platform is an interactive image annotation tool enabling a human feedback loop (**Human-in-the-Loop**). It allows for validating AI predictions, correcting bounding boxes, and generating high-quality datasets for model retraining.
 
-### Objectifs Clés :
+### Key Objectives:
 
-* **Portabilité :** environnement isolé via Docker.
-* **Audit IA :** interface pour accepter/rejeter les prédictions de l’agent IA.
-* **Pipeline MLOps :** intégration avec MLflow pour le suivi des expériences et DVC pour le versionnement des données.
+* **Portability:** Isolated environment via Docker.
+* **AI Audit:** Interface to accept/reject AI agent predictions.
+* **MLOps Pipeline:** Integration with MLflow for experiment tracking and DVC for data versioning.
 
 ---
 
-## Architecture Technique
+## Technical Architecture
 
-| Composant            | Technologie       | Rôle                                                            |
+| Component            | Technology        | Role                                                            |
 | :------------------- | :---------------- | :-------------------------------------------------------------- |
-| **Frontend**         | JS / HTML5 Canvas | Interface d'annotation et révision                              |
-| **Backend API**      | Flask (Python)    | Gestion des données, logique métier, interaction avec IA        |
-| **MLflow**           | MLflow Server     | Suivi des métriques, paramètres et artefacts des expériences IA |
-| **Base de données**  | PostgreSQL        | Stockage des métadonnées d'annotation                           |
-| **Conteneurisation** | Docker / Compose  | Orchestration et portabilité des services                       |
+| **Frontend** | JS / HTML5 Canvas | Annotation and review interface                                 |
+| **Backend API** | Flask (Python)    | Data management, business logic, AI interaction                 |
+| **MLflow** | MLflow Server     | Tracking metrics, parameters, and AI experiment artifacts       |
+| **Database** | PostgreSQL        | Storage of annotation metadata                                  |
+| **Containerization** | Docker / Compose  | Orchestration and service portability                           |
 
 ---
 
-## Installation et Lancement
+## Installation and Launch
 
-### Prérequis
+### Prerequisites
 
-* Docker et Docker Compose installés sur votre machine.
-* Git pour le versionnement.
+* Docker and Docker Compose installed on your machine.
+* Git for version control.
 
-### Étapes de lancement
+### Launch Steps
 
-1. **Cloner le projet :**
+1. **Clone the project:**
 
    ```bash
-   git clone <votre-url-repo>
+   git clone <your-repo-url>
    cd Human-in-the-Loop-MLOps
-   ```
 
-2. **Construire et lancer les conteneurs :**
+```
 
-   ```bash
-   docker-compose up --build
-   ```
+2. **Build and start containers:**
+```bash
+docker-compose up --build
 
-3. **Accéder à l'application :**
-   Ouvrez votre navigateur sur [http://localhost:5000](http://localhost:5000)
+```
 
-4. **Accéder à MLflow :**
-   MLflow est disponible sur [http://localhost:5001](http://localhost:5001) pour suivre les métriques et artefacts.
+
+3. **Access the application:**
+Open your browser at [http://localhost:5000](https://www.google.com/search?q=http://localhost:5000)
+4. **Access MLflow:**
+MLflow is available at [http://localhost:5001](https://www.google.com/search?q=http://localhost:5001) to track metrics .
 
 ---
 
-## Fonctionnement de l’Architecture
+## Architecture Functioning
 
-### Backend Flask
+### Flask Backend
 
-* Reçoit les données d’annotation et les feedbacks humains via l’API REST.
-* Interagit avec le modèle IA pour générer des prédictions (`/ai/detect`).
-* Sauvegarde toutes les informations (paramètres, métriques, images annotées) dans MLflow.
-* Génère dynamiquement les images dans `static/tmp` pour l’interface.
+* Receives annotation data and human feedback via the REST API.
+* Interacts with the AI model to generate predictions (`/ai/detect`).
+* Saves all information (parameters, metrics, annotated images) into MLflow.
+* Dynamically generates images in `static/tmp` for the interface.
 
 ### MLflow
 
-* Chaque session d’annotation ou détection IA devient une **run** dans MLflow.
-* Les **paramètres** (prompts, frame_id, nombre d’objets détectés) sont enregistrés.
-* Les **métriques** (feedback humain, corrections, précision) sont suivies.
-* Les **artefacts** (images annotées, JSON des annotations) sont stockés pour réutilisation.
+* Each annotation or AI detection session becomes a **run** in MLflow.
+* **Parameters** (prompts, frame_id, number of detected objects) are recorded.
+* **Metrics**  are tracked.
 
-### Schéma simplifié :
+
+### Simplified Schema:
 
 ```
 Frontend (JS/Canvas)
         |
         v
 Backend Flask ----------------------> MLflow (tracking server)
-  - Receives frames                   - Stores metrics, params, artifacts
+  - Receives frames                   - Stores metrics
   - Handles AI detection              - Versioned experiment tracking
   - Saves human feedback              - Enables reproducible training pipelines
         |
         v
 Static/tmp (Images)
+
 ```
 
----
 
-## Fonctionnalités Implémentées
+## Implemented Features
 
-| Fonctionnalité          | Description                                                                                      |
-| ----------------------- | ------------------------------------------------------------------------------------------------ |
-| Annotation dynamique    | Dessin manuel de bounding boxes avec déplacement et redimensionnement.                           |
-| Audit IA                | Interface pour analyser, accepter ou rejeter les prédictions du modèle IA.                       |
-| Feedback humain         | Système de notation qualitative (Positive / Négative / Neutre) via raccourcis clavier (A, S, D). |
-| Gestion d’état          | Historique des actions pour annulation et correction rapide des erreurs.                         |
-| Filtrage visuel         | Masquage ou affichage sélectif des annotations pour améliorer la lisibilité.                     |
-| Suivi MLOps avec MLflow | Enregistrement des métriques, paramètres et artefacts pour chaque run.                           |
-
----
-
-## Apport du Human-in-the-Loop
-
-L’intégration de l’humain dans la boucle décisionnelle apporte plusieurs bénéfices :
-
-* Amélioration progressive de la qualité des annotations.
-* Détection rapide des erreurs du modèle IA.
-* Création d’un jeu de données fiable pour le ré-entraînement.
-* Augmentation de la confiance dans les décisions automatisées.
-
-Le feedback humain est **une donnée stratégique** permettant de transformer une simple application d’annotation en un **système d’apprentissage continu**.
+| Feature | Description |
+| --- | --- |
+| Dynamic Annotation | Manual drawing of bounding boxes with moving and resizing capabilities. |
+| AI Audit | Interface to analyze, accept, or reject AI model predictions. |
+| Human Feedback | Qualitative rating system (Positive / Negative / Neutral) via keyboard shortcuts (A, S, D). |
+| State Management | Action history allowing for undoing and quick error correction. |
+| Visual Filtering | Selective hiding or showing of annotations to improve readability. |
+| MLOps Tracking w/ MLflow | Recording of metrics, parameters, and artifacts for each run. |
 
 ---
 
-## Roadmap & Intégrations Futures
+## Value of Human-in-the-Loop
 
-### Docker – Conteneurisation
+Integrating humans into the decision loop brings several major benefits:
 
-* Garantir la portabilité et la reproductibilité.
-* Conteneur backend Flask et MLflow.
+* Progressive improvement of annotation quality.
+* Rapid detection of AI model errors.
+* Creation of a reliable dataset for retraining.
+* Increased confidence in automated decisions.
+
+Human feedback is **strategic data** that transforms a simple annotation application into a true **continuous learning system**.
+
+---
+
+## Roadmap & Future Integrations
+
+### Docker – Containerization
+
+* Ensure portability and reproducibility.
+* Flask Backend and MLflow containers.
 * Orchestration via `docker-compose`.
 
-### MLflow – Suivi des Expériences
+### MLflow – Experiment Tracking
 
-* Suivi des paramètres du modèle, métriques de performance et feedback humain.
-* Versionnement des artefacts (images annotées, fichiers JSON).
+* Tracking of model parameters, performance metrics, and human feedback.
+* Versioning of artifacts (annotated images, JSON files).
 
-### DVC – Gestion des Données
+### DVC – Data Management
 
-* Structurer et versionner les jeux de données annotés.
-* Gestion des images sources et des annotations JSON sans surcharger Git.
-* Traçabilité complète pour le ré-entraînement futur des modèles.
+* Structure and version annotated datasets.
+* Management of source images and JSON annotations without overloading Git.
+* Complete traceability for future model retraining.
 
 ---
 
 ## Conclusion
 
-Cette plateforme constitue une **base solide pour un système Human-in-the-Loop moderne**, combinant interaction humaine, intelligence artificielle et bonnes pratiques MLOps.
+This platform constitutes a **solid foundation for a modern Human-in-the-Loop system**, combining human interaction, artificial intelligence, and MLOps best practices.
 
-* Portabilité et reproductibilité via Docker.
-* Suivi et versionnement précis via MLflow.
-* Gestion efficace des jeux de données avec DVC.
+* Portability and reproducibility via Docker.
+* Precise tracking and versioning via MLflow.
+* Efficient dataset management with DVC.
 
-Le projet est prêt à évoluer vers un **système évolutif et orienté amélioration continue des agents IA**.
+The project is ready to evolve into a **scalable system oriented towards the continuous improvement of AI agents**.
+
+```
+
+```
