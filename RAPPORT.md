@@ -95,7 +95,7 @@ The platform is fully **containerized using Docker**. The Flask backend acts as 
 
 **MLflow** ensures full traceability. Each save operation triggered by the backend creates a new *Run* within the `human_in_the_loop_experiment` experiment.
 
-![MLflow interface listing experiments](/Simple-Human-in-the-Loop-ML-Interface/assets/mlflow%202.png)  
+![MLflow interface listing experiments](assets/mlflow%202.png)  
 *Figure 1: MLflow dashboard listing the “auto_save_from_backend” runs. It shows session history, duration, and status.*
 
 ### 5.3 Results Analysis and Visualizations
@@ -106,7 +106,7 @@ The analysis of MLflow-generated graphs provides valuable insights into model pe
 
 One key metric is the difference between the number of boxes detected by the AI (`ai_boxes_count`) and the number of boxes ultimately validated or created by the human (`human_boxes_count`).
 
-![Bar chart comparing AI and Human boxes](/Simple-Human-in-the-Loop-ML-Interface/assets/human%20boxes%20vs%20ia.png)  
+![Bar chart comparing AI and Human boxes](assets/human%20boxes%20vs%20ia.png)  
 *Figure 2: Direct comparison for a single run. The AI proposed more than 20 boxes, while the human retained only 10.*
 
 **Analysis:** This graph highlights the model’s false positive rate. The significant gap suggests that the AI is overly sensitive or detects irrelevant objects that the human must filter out. This is where the HITL loop delivers its full value by cleaning the dataset.
@@ -115,14 +115,14 @@ One key metric is the difference between the number of boxes detected by the AI 
 
 We can compare metrics across multiple successive sessions to observe variability in the processed data.
 
-![Comparison of the last 5 runs](/Simple-Human-in-the-Loop-ML-Interface/assets/compare%205%20last%20runs.png)  
+![Comparison of the last 5 runs](assets/compare%205%20last%20runs.png)  
 *Figure 3: Comparison of recent runs. The brown bar (Total Frames) remains constant, while colored bars (AI Boxes) vary depending on the processed images.*
 
 #### C. Annotation Progress
 
 The parallel coordinates plot visualizes the relationship between the total dataset size and annotation progress.
 
-![Parallel coordinates plot](/Simple-Human-in-the-Loop-ML-Interface/assets/total%20frame%20vs%20evalutaed%20frame.png)  
+![Parallel coordinates plot](assets/total%20frame%20vs%20evalutaed%20frame.png)  
 *Figure 4: Parallel Coordinates Plot linking the total number of frames (~110) to the number of frames actually evaluated (2 to 3).*
 
 **Analysis:** This graph serves as a progress indicator (KPI). It shows that, for these specific runs, only a small portion of the video has been processed, indicating an early testing or initial annotation phase.
@@ -133,15 +133,15 @@ To understand detection distribution, scatter plots are used.
 
 **Distribution comparison:**
 
-![AI Scatter Plot](/Simple-Human-in-the-Loop-ML-Interface/assets/evaluated%20frame%20vs%20ia%20boxes.png)  
+![AI Scatter Plot](assets/evaluated%20frame%20vs%20ia%20boxes.png)  
 *Figure 5a: AI scatter plot (Evaluated Frames vs AI Boxes)*
 
-![Human Scatter Plot](/Simple-Human-in-the-Loop-ML-Interface/assets/evaluated%20frame%20human%20boxes.png)  
+![Human Scatter Plot](assets/evaluated%20frame%20human%20boxes.png)  
 *Figure 5b: Human scatter plot (Evaluated Frames vs Human Boxes)*
 
 Finally, the **Contour Plot** provides a three-dimensional synthesis of interactions:
 
-![Final Contour Plot](/Simple-Human-in-the-Loop-ML-Interface/assets/final%20cap.png)  
+![Final Contour Plot](assets/final%20cap.png)  
 *Figure 6: Contour plot analyzing the density of the relationship between Evaluated Frames (X), AI Boxes (Y), and Human Boxes (Z/Color).*
 
 **Analysis Conclusion:** The visualizations confirm an expected positive correlation: as the user evaluates more frames, the number of detected objects (AI and Human) increases. However, the consistent disparity between AI and human counts validates the necessity of this tool to *audit* the model before any retraining phase.
@@ -177,7 +177,7 @@ This section presents visual evidence of system execution, data versioning, and 
 The project integrates **Data Version Control (DVC)** to manage large datasets such as images and annotation files without overloading the Git repository.  
 DVC ensures full traceability of dataset evolution and enables reproducible experiments.
 
-![DVC status and tracked files](/Simple-Human-in-the-Loop-ML-Interface/assets/finish%20push%20dvc.png)  
+![DVC status and tracked files](/assets/finish%20push%20dvc.png)  
 *Figure 7: DVC tracking status showing versioned datasets and annotation files.*
 
 
@@ -192,7 +192,7 @@ DVC allows seamless synchronization between dataset versions and ML experiments 
 The frontend provides an interactive and intuitive interface allowing the human annotator to efficiently review and correct AI predictions.
 
 
-![Frontend review mode](/Simple-Human-in-the-Loop-ML-Interface/assets/humane%20in%20the%20loop%20app.png)  
+![Frontend review mode](assets/humane%20in%20the%20loop%20app.png)  
 *Figure 8: Review mode displaying AI-generated predictions .*
 
 **Analysis:**  
@@ -204,7 +204,7 @@ These interfaces demonstrate the central role of the human in the loop. The anno
 
 The entire platform is orchestrated using **Docker Compose**, enabling seamless deployment of all services including the frontend, backend, MLflow tracking server, and supporting components.
 
-![Docker Compose running services](/Simple-Human-in-the-Loop-ML-Interface/assets/docker_compose_up.png)  
+![Docker Compose running services](assets/cap%20dokcer%20compose.png)  
 *Figure 9: Successful execution of `docker-compose up` showing all services running.*
 
 
