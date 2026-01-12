@@ -18,6 +18,11 @@ __pycache__/
 images.pkl
 data.pickle
 
+# Fichiers de données (À gérer avec DVC)
+*.pkl
+*.pickle
+images.pkl
+data.pickle
 
 
 # Dossiers spécifiques
