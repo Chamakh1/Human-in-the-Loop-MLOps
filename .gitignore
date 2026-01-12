@@ -18,11 +18,7 @@ __pycache__/
 images.pkl
 data.pickle
 
-# Images
-*.jpg
-*.png
-*.jpeg
-*.gif
+
 
 # Dossiers spécifiques
 examples/
