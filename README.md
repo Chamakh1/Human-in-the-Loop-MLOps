@@ -42,7 +42,7 @@ This platform is an interactive image annotation tool enabling a human feedback 
 1. **Clone the project:**
 
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/Chamakh1/Human-in-the-Loop-MLOps.git
    cd Human-in-the-Loop-MLOps
 
 ```
@@ -52,7 +52,6 @@ This platform is an interactive image annotation tool enabling a human feedback 
 docker-compose up --build
 
 ```
-
 
 3. **Access the application:**
 Open your browser at [http://localhost:5000](https://www.google.com/search?q=http://localhost:5000)
@@ -68,7 +67,7 @@ MLflow is available at [http://localhost:5001](https://www.google.com/search?q=h
 * Receives annotation data and human feedback via the REST API.
 * Interacts with the AI model to generate predictions (`/ai/detect`).
 * Saves all information (parameters, metrics, annotated images) into MLflow.
-* Dynamically generates images in `static/tmp` for the interface.
+* Dynamically fetches images from `static/tmp` for the interface.
 
 ### MLflow
 
@@ -89,7 +88,7 @@ Backend Flask ----------------------> MLflow (tracking server)
   - Saves human feedback              - Enables reproducible training pipelines
         |
         v
-Static/tmp (Images)
+/human_study_data
 
 ```
 
@@ -99,7 +98,7 @@ Static/tmp (Images)
 | Feature | Description |
 | --- | --- |
 | Dynamic Annotation | Manual drawing of bounding boxes with moving and resizing capabilities. |
-| AI Audit | Interface to analyze, accept, or reject AI model predictions. |
+| AI Audit | Interface to analyze / accept AI model predictions. |
 | Human Feedback | Qualitative rating system (Positive / Negative / Neutral) via keyboard shortcuts (A, S, D). |
 | State Management | Action history allowing for undoing and quick error correction. |
 | Visual Filtering | Selective hiding or showing of annotations to improve readability. |
@@ -113,7 +112,7 @@ Integrating humans into the decision loop brings several major benefits:
 
 * Progressive improvement of annotation quality.
 * Rapid detection of AI model errors.
-* Creation of a reliable dataset for retraining.
+* Creation of a reliable dataset for retraining (based on human feedback).
 * Increased confidence in automated decisions.
 
 Human feedback is **strategic data** that transforms a simple annotation application into a true **continuous learning system**.
