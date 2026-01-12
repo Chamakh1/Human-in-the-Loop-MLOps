@@ -150,6 +150,4 @@ This platform constitutes a **solid foundation for a modern Human-in-the-Loop sy
 
 The project is ready to evolve into a **scalable system oriented towards the continuous improvement of AI agents**.
 
-```
-
-```
+---
